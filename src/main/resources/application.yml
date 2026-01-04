@@ -1,0 +1,111 @@
+spring:
+  application:
+    name: order-service
+
+  datasource:
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:orders}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+
+  jackson:
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+server:
+  port: ${SERVER_PORT:8080}
+  # Request size limits to prevent large payload attacks
+  max-http-request-header-size: 8KB
+  tomcat:
+    max-swallow-size: 2MB
+    max-http-form-post-size: 2MB
+
+# Rate limiting configuration
+rate-limit:
+  requests-per-minute: ${RATE_LIMIT_PER_MINUTE:100}
+  requests-per-second: ${RATE_LIMIT_PER_SECOND:20}
+  burst-capacity: ${RATE_LIMIT_BURST:50}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when_authorized
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# RabbitMQ configuration (via rabbitmq-client library)
+rabbitmq:
+  host: ${RABBITMQ_HOST:localhost}
+  port: ${RABBITMQ_PORT:5672}
+  vhost: ${RABBITMQ_VHOST:/}
+  use-tls: ${RABBITMQ_USE_TLS:false}
+
+  # Vault integration for credentials
+  vault:
+    enabled: ${VAULT_ENABLED:false}
+    address: ${VAULT_ADDR:http://localhost:8200}
+    role: ${VAULT_ROLE:order-publisher}
+    mount-path: ${VAULT_RABBITMQ_PATH:rabbitmq}
+
+  # Static credentials (when Vault is disabled)
+  username: ${RABBITMQ_USERNAME:guest}
+  password: ${RABBITMQ_PASSWORD:guest}
+
+  # Connection pool settings
+  pool:
+    size: ${RABBITMQ_POOL_SIZE:10}
+
+  # Consumer settings
+  consumer:
+    prefetch-count: ${RABBITMQ_PREFETCH_COUNT:10}
+
+  # Retry settings
+  retry:
+    max-attempts: ${RABBITMQ_RETRY_MAX_ATTEMPTS:3}
+    initial-interval: ${RABBITMQ_RETRY_INITIAL_INTERVAL:1000}
+    max-interval: ${RABBITMQ_RETRY_MAX_INTERVAL:30000}
+    multiplier: ${RABBITMQ_RETRY_MULTIPLIER:2.0}
+
+  # Circuit breaker settings
+  circuit-breaker:
+    enabled: ${RABBITMQ_CIRCUIT_BREAKER_ENABLED:true}
+    failure-threshold: ${RABBITMQ_CIRCUIT_BREAKER_FAILURE_THRESHOLD:5}
+    success-threshold: ${RABBITMQ_CIRCUIT_BREAKER_SUCCESS_THRESHOLD:2}
+    timeout: ${RABBITMQ_CIRCUIT_BREAKER_TIMEOUT:30000}
+
+# OAuth2/OIDC Configuration (Keycloak SSO)
+oauth2:
+  enabled: ${OAUTH2_ENABLED:false}
+  resource-server:
+    jwt:
+      issuer-uri: ${OAUTH2_ISSUER_URI:http://keycloak.identity.svc.cluster.local/realms/shopping-cart}
+      jwk-set-uri: ${OAUTH2_JWK_SET_URI:http://keycloak.identity.svc.cluster.local/realms/shopping-cart/protocol/openid-connect/certs}
+
+spring.security.oauth2.resourceserver.jwt:
+  issuer-uri: ${OAUTH2_ISSUER_URI:http://keycloak.identity.svc.cluster.local/realms/shopping-cart}
+  jwk-set-uri: ${OAUTH2_JWK_SET_URI:http://keycloak.identity.svc.cluster.local/realms/shopping-cart/protocol/openid-connect/certs}
+
+# Logging
+logging:
+  level:
+    root: INFO
+    com.shoppingcart.order: DEBUG
+    org.springframework.amqp: INFO
+    org.springframework.security: ${SECURITY_LOG_LEVEL:INFO}

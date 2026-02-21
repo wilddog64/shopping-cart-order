@@ -1,0 +1,170 @@
+# Project Rules
+
+## Tech Stack
+
+- **Language**: Java 21 (LTS)
+- **Framework**: Spring Boot 3.2.0 (parent POM)
+- **Database**: PostgreSQL 15+ via Spring Data JPA (Hibernate)
+- **Messaging**: RabbitMQ via internal `rabbitmq-client` library (com.shoppingcart:rabbitmq-client:1.0.0-SNAPSHOT)
+- **Security**: Spring Security, OAuth2 Resource Server (JWT), Keycloak JWKS
+- **Rate Limiting**: Bucket4j 8.7.0 + Caffeine in-memory cache
+- **Build**: Maven 3.9+
+- **Testing**: JUnit 5, Spring Boot Test, Testcontainers (PostgreSQL + RabbitMQ), H2 (unit tests)
+- **Metrics**: Micrometer + Prometheus via Spring Actuator
+- **Container**: Docker multi-stage build
+- **Orchestration**: Kubernetes with Kustomize (k8s/base/); ArgoCD integration
+- **Code Quality**: Spotless (formatting), Checkstyle (linting), Lombok
+
+## Architecture
+
+Standard Spring Boot layered architecture:
+
+```
+Controller (REST) → Service (Business Logic) → Repository (JPA) → PostgreSQL
+                         ↓
+                    EventPublisher → RabbitMQ
+```
+
+Package structure: `com.shoppingcart.order.*`
+- `controller/` — `OrderController` REST endpoints
+- `service/` — `OrderService` (business logic + transactions), `OrderEventPublisher`
+- `repository/` — `OrderRepository` (Spring Data JPA)
+- `entity/` — `Order`, `OrderItem`, `ShippingAddress` (embedded), `OrderStatus` enum
+- `event/` — `EventEnvelope`, `OrderCreatedEvent`, `OrderPaidEvent`, `OrderShippedEvent`, `OrderCompletedEvent`, `OrderCancelledEvent`
+- `dto/` — `CreateOrderRequest`, `UpdateOrderStatusRequest`, `CancelOrderRequest`, `OrderResponse` (Java records)
+- `config/` — `SecurityConfig`, `OAuth2SecurityConfig`, `RateLimitConfig`, `RateLimitFilter`, `InputSanitizer`
+
+## Code Conventions
+
+- Follow standard Java conventions (Google Java Style or Sun conventions)
+- Use **Java records** for all immutable DTOs and event payloads
+- Prefer **constructor injection** over field injection; use `@RequiredArgsConstructor` (Lombok)
+- Add `@Transactional` to all service methods that modify state; use `@Transactional(readOnly = true)` for reads
+- Use `@Slf4j` (Lombok) for logging; log at INFO for operations, DEBUG for detail, WARN/ERROR for issues
+- Never log sensitive data (customer PII, payment info)
+- Format with Spotless: `make format` or `mvn spotless:apply`
+- Lint with Checkstyle: `make lint` or `mvn checkstyle:check`
+- Status transitions are validated in `OrderService.validateStatusTransition()`; use switch expressions (Java 21)
+- Timestamps: use `java.time.Instant` for all persisted timestamps; `java.time.LocalDate` for dates
+- Money: use `java.math.BigDecimal` (never double/float) for `totalAmount` and `unitPrice`
+- JPA: `ddl-auto: validate` in production — schema managed externally (Flyway/manual)
+- Entity IDs: `UUID` type with `@GeneratedValue(strategy = GenerationType.UUID)`
+- Lifecycle callbacks: `@PrePersist` sets `createdAt`/`updatedAt`; `@PreUpdate` sets `updatedAt`
+- Use `@Embedded` for `ShippingAddress` in Order entity
+
+## Testing
+
+- Unit tests: suffix `*Test`; use H2 in-memory database; mock external services
+- Integration tests: suffix `*IntegrationTest`; use Testcontainers (real PostgreSQL + RabbitMQ)
+- Security tests: `*SecurityConfigTest`, `*OAuth2SecurityConfigTest`, `*RateLimitFilterTest`, `*InputSanitizerTest`
+- Run all tests: `make test` or `mvn test`
+- Run unit tests only: `make test-unit` or `mvn test -Dtest="*Test" -DfailIfNoTests=false`
+- Run integration tests: `make test-integration` or `mvn verify -Pintegration` (requires Docker for Testcontainers)
+- Run security tests only: `make test-security`
+- Coverage report: `make test-coverage` → `target/site/jacoco/index.html`
+- Test single class: `mvn test -Dtest=OrderServiceTest`
+
+## Build & Run
+
+```bash
+# Build (compile only)
+make build
+
+# Package JAR (skipping tests)
+make package
+
+# Run locally
+make run
+
+# Run with dev profile
+make run-dev
+
+# Run with remote debug (port 5005)
+make debug
+
+# Format code
+make format
+
+# Lint
+make lint
+
+# Full check (lint + test)
+make check
+
+# Install local rabbitmq-client dependency (if not in Maven repo)
+cd ../rabbitmq-client-java && mvn install
+
+# Build Docker image
+make docker-build
+
+# Deploy to Kubernetes
+make k8s-deploy       # kubectl apply -k k8s/base
+
+# View K8s logs
+make k8s-logs
+
+# Port-forward to local (port 8080)
+make k8s-port-forward
+
+# ArgoCD sync
+make argocd-sync
+```
+
+Key environment variables (defaults from application.yml):
+- `SERVER_PORT=8080`
+- `DB_HOST=localhost`, `DB_PORT=5432`, `DB_NAME=orders`, `DB_USERNAME=postgres`, `DB_PASSWORD=postgres`
+- `RABBITMQ_HOST=localhost`, `RABBITMQ_PORT=5672`, `RABBITMQ_VHOST=/`, `RABBITMQ_USERNAME=guest`, `RABBITMQ_PASSWORD=guest`
+- `VAULT_ENABLED=false`, `VAULT_ADDR=http://localhost:8200`, `VAULT_ROLE=order-publisher`
+- `OAUTH2_ENABLED=false`, `OAUTH2_ISSUER_URI=`, `OAUTH2_JWK_SET_URI=`
+- `RATE_LIMIT_PER_MINUTE=100`, `RATE_LIMIT_PER_SECOND=20`, `RATE_LIMIT_BURST=50`
+
+## Key Patterns
+
+### Order Status State Machine
+Valid transitions only — enforced in `OrderService.validateStatusTransition()`:
+```
+PENDING → PAID | CANCELLED
+PAID    → PROCESSING | CANCELLED
+PROCESSING → SHIPPED | CANCELLED
+SHIPPED → COMPLETED
+COMPLETED → (terminal)
+CANCELLED → (terminal)
+```
+Attempting invalid transitions throws `IllegalStateException`.
+
+### Event Publishing Pattern
+Each status transition publishes a corresponding RabbitMQ event via `OrderEventPublisher`:
+```java
+publisher.publish("events", "order.created", event.toEnvelope());
+```
+Exchange: `events`
+Routing keys: `order.created`, `order.paid`, `order.shipped`, `order.completed`, `order.cancelled`
+
+Common envelope format (same pattern as all platform services):
+```json
+{
+  "id": "uuid", "type": "order.created", "version": "1.0",
+  "timestamp": "ISO8601", "source": "order-service",
+  "correlationId": "uuid", "data": { ... }
+}
+```
+
+### RabbitMQ Client Library
+Uses `com.shoppingcart:rabbitmq-client:1.0.0-SNAPSHOT` — a local library.
+If not found in Maven repo: `cd ../rabbitmq-client-java && mvn install`
+Supports Vault dynamic credentials when `VAULT_ENABLED=true`.
+
+### Security Configuration
+- `SecurityConfig` — base security: CSRF disabled for APIs, security headers, CORS
+- `OAuth2SecurityConfig` — activates when `oauth2.enabled=true`; validates JWT via Keycloak JWKS; extracts roles from `realm_access`, `resource_access`, `groups` claims
+- `RateLimitFilter` — Bucket4j with Caffeine cache for per-IP rate limiting
+- `InputSanitizer` — request sanitization to prevent injection attacks
+
+### Kubernetes Deployment
+- Namespace: `shopping-cart-apps`
+- K8s resource labels use `app.kubernetes.io/name: order-service`
+- Has HPA (HorizontalPodAutoscaler) in k8s/base/hpa.yaml
+- Has separate namespace manifest: k8s/base/namespace.yaml
+- Has secret manifest: k8s/base/secret.yaml
+- ArgoCD integration: make targets `argocd-status`, `argocd-sync`, `argocd-refresh`, `argocd-diff`, `argocd-history`
+- JAVA_HOME defaults to `/home/linuxbrew/.linuxbrew/opt/openjdk@21` in Makefile (adjust for your environment)

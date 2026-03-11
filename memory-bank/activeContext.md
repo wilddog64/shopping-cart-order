@@ -63,3 +63,26 @@ Tests present in `src/test/java/com/shoppingcart/order/config/`:
 - `RateLimitFilterTest` — rate limiting behavior
 - `SecurityConfigTest` — base security configuration
 - `TestController` — helper controller for security tests
+
+## CI Blocker — OPEN (2026-03-11)
+
+**Failing since:** 2026-03-09
+**Failing step:** `Build & Test` → `Build with Maven`
+
+**Error:**
+```
+[ERROR] Could not resolve dependencies for project com.shoppingcart:shopping-cart-order
+[ERROR] dependency: com.shoppingcart:rabbitmq-client:jar:1.0.0-SNAPSHOT
+[ERROR] Could not find artifact com.shoppingcart:rabbitmq-client:jar:1.0.0-SNAPSHOT
+```
+
+**Root cause:** `rabbitmq-client-java` is declared as a Maven dependency but never published to any accessible repository. CI has no way to resolve it.
+
+**Fix options (pick one):**
+1. Publish `rabbitmq-client-java` to GitHub Packages and configure CI to install from there
+2. Restructure as a multi-module Maven project (parent pom + modules)
+3. Add a CI step that builds and installs `rabbitmq-client-java` before building the order service
+
+**Note from CLAUDE.md:** `rabbitmq-client-java` version must stay pinned — never use `-SNAPSHOT` in production.
+
+**Priority:** P2 — assigned to v0.8.0 milestone. See `k3d-manager/docs/issues/2026-03-11-shopping-cart-ci-failures.md`.

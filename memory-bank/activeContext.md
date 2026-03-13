@@ -1,4 +1,21 @@
-# Active Context: Order Service
+## CI Status (as of 2026-03-13)
+
+**Branch:** `fix/ci-stabilization` — PR #1 open
+
+| Job | Status |
+|---|---|
+| Build & Test | ❌ fail |
+
+**Failure:** `Could not find artifact com.shoppingcart:rabbitmq-client:jar:1.0.0-SNAPSHOT in github-rabbitmq-client`
+
+maven-settings.xml and `-s` flag are already in place. Root cause: the build job is
+missing `packages: read` permission — `GITHUB_TOKEN` cannot read packages from another
+repo (`wilddog64/rabbitmq-client-java`) without this explicit permission declaration.
+
+**Round 3 fix required (spec: `wilddog64/shopping-cart-infra` → `docs/plans/ci-stabilization-round3.md` @ c5797539):**
+- `.github/workflows/ci.yml`: add `packages: read` to build job permissions block
+
+---# Active Context: Order Service
 
 ## Current Status
 

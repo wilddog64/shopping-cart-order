@@ -148,6 +148,9 @@
             <id>github-rabbitmq-client</id>
             <name>GitHub Packages — rabbitmq-client-java</name>
             <url>https://maven.pkg.github.com/wilddog64/rabbitmq-client-java</url>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
         </repository>
     </repositories>
 

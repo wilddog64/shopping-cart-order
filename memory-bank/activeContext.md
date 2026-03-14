@@ -2,7 +2,7 @@
 
 ## Current Status (2026-03-14)
 
-CI green. PR #1 merged to main. Branch protection active.
+Branch protection active. `feature/p4-linter` (PR [#2](https://github.com/wilddog64/shopping-cart-order/pull/2)) now runs Checkstyle + OWASP in CI, but the latest build (run `23096292362`) fails because OWASP Dependency Check cannot download NVD data without an API key.
 
 ## What's Implemented
 
@@ -20,8 +20,7 @@ CI green. PR #1 merged to main. Branch protection active.
 
 ## Active Task
 
-- **P4 linter** — Checkstyle + OWASP. Spec: `wilddog64/shopping-cart-infra/docs/plans/p4-linter-order.md`. Branch `feature/p4-linter`, PR #2 open; CI run `23096069427` green on HEAD `c15a965c`. Copilot review requested. Ready to merge.
-  - Note: `failOnError=false` added to OWASP config — scan uses cached NVD data until `NVD_API_KEY` secret is added to repo settings.
+- **P4 linter** — Checkstyle + OWASP. Spec: `wilddog64/shopping-cart-infra/docs/plans/p4-linter-order.md`. Branch `feature/p4-linter`, PR #2 open; Checkstyle job passes but OWASP dependency-check fails (run `23096292362`) because the repository lacks an `NVD_API_KEY` secret. See `docs/issues/2026-03-14-owasp-nvd-api-key.md` for remediation.
 
 ## Agent Rules (Codex must follow)
 

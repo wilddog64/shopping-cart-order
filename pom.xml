@@ -197,6 +197,7 @@
                     <failBuildOnCVSS>9</failBuildOnCVSS>
                     <skipTestScope>true</skipTestScope>
                     <nvdApiDelay>4000</nvdApiDelay>
+                    <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
                 </configuration>
                 <executions>
                     <execution>

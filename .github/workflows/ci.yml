@@ -51,7 +51,7 @@ jobs:
         run: mvn -B verify -s .github/maven-settings.xml
         env:
           PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}
-          NVD_API_KEY: ${{ secrets.NVD_API_KEY || 'DEMO_KEY' }}
+          NVD_API_KEY: ${{ secrets.NVD_API_KEY }}
 
   publish:
     name: Build, Scan & Push

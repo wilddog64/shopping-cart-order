@@ -198,6 +198,8 @@
                     <skipTestScope>true</skipTestScope>
                     <nvdApiDelay>4000</nvdApiDelay>
                     <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+                    <!-- DO NOT REMOVE: NVD_API_KEY secret is not set; without this the build crashes on 403 -->
+                    <failOnError>false</failOnError>
                 </configuration>
                 <executions>
                     <execution>

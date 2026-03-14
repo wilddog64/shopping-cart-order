@@ -198,6 +198,7 @@
                     <skipTestScope>true</skipTestScope>
                     <nvdApiDelay>4000</nvdApiDelay>
                     <nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>
+                    <autoUpdate>false</autoUpdate>
                 </configuration>
                 <executions>
                     <execution>

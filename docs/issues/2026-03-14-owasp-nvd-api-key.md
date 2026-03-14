@@ -2,28 +2,25 @@
 
 ## Summary
 
-After adding the OWASP Dependency Check plugin (per p4-linter spec), the `mvn verify`
-step now fails in CI because the plugin cannot download NVD data without an API key.
-The GitHub Actions logs show repeated `UpdateException: Error updating the NVD Data;
-the NVD returned a 403 or 404 error` followed by `NoDataException: No documents exist`.
-Attempts to provide the public `DEMO_KEY` and to disable `autoUpdate` both failed —
-NVD now requires an authenticated API key even for first-time database creation.
+After enabling Checkstyle + OWASP in CI, the `mvn verify` step now fails because
+OWASP Dependency Check cannot download NVD data without an API key. The latest run
+(`23096292362`) throws `UpdateException: Error updating the NVD Data; the NVD
+returned a 403 or 404 error` and `NoDataException: No documents exist`.
 
 ## Impact
 
-- CI run `23095750831` on branch `feature/p4-linter` fails in the `Build & Test` job,
-  blocking the Checkstyle/OWASP PR from passing.
-- Checkstyle succeeds; only dependency-check is failing before any CVE scan happens,
-  so no vulnerability signal is produced.
+- CI for branch `feature/p4-linter` (PR #2) fails in the build job, blocking the long-term linter gate.
+- No vulnerability scan results are produced until the NVD feed can be downloaded.
 
-## Next Steps
+## Workaround / Next Steps
 
-- Provision an `NVD_API_KEY` secret in the `wilddog64/shopping-cart-order` repository
-  (or appropriate GitHub environment) with a valid key from https://nvd.nist.gov/developers.
-- Once the secret exists, the workflow already passes it to Maven via the
-  `NVD_API_KEY` env var and `pom.xml` configuration (`<nvdApiKey>${env.NVD_API_KEY}</nvdApiKey>`).
-- Re-run the workflow (push or `gh run rerun`) to populate the dependency-check
-  data store and unblock the linter PR.
+1. Add a valid `NVD_API_KEY` secret to the repository settings (per OWASP Dependency Check
+   recommendation). Instructions: https://github.com/jeremylong/DependencyCheck?tab=readme-ov-file#nvd-api-key-highly-recommended.
+2. (Optional) Prime the GH runner cache by running dependency-check once with the key so the
+   local data directory is populated.
+3. Re-run the workflow (`gh run rerun 23096292362`) after the secret is available; the existing
+   workflow already exports `NVD_API_KEY` to Maven so no code changes are needed.
+4. Until the API key exists, OWASP will fail before scanning dependencies, so the Checkstyle/OWASP
+   PR cannot merge.
 
-Until the API key is available, OWASP dependency-check will continue to fail before
-any dependency analysis runs.
+Last failure: run `23096292362`, commit `bea10f4`, message "Re-enable OWASP failure mode".

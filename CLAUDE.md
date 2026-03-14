@@ -190,3 +190,14 @@ psql -h localhost -p 5432 -U postgres -d orders -c "SELECT 1"
 - Prefer constructor injection over field injection
 - Add `@Transactional` to service methods that modify state
 - Log at appropriate levels (DEBUG for details, INFO for operations, WARN/ERROR for issues)
+
+## Agent Instructions
+
+Rules that apply to ALL agents (Codex, Claude, Gemini) working in this repo:
+
+1. **CI only** — do NOT run `./mvnw` or `mvn` locally. Local Java is 25; pom requires Java 21. This causes Testcontainers timeouts. Use `gh run list` to verify.
+2. **Memory-bank discipline** — do NOT update `memory-bank/activeContext.md` until `gh run list --repo wilddog64/shopping-cart-order` shows `completed success`.
+3. **SHA verification** — always verify commit SHA with `gh api repos/wilddog64/shopping-cart-order/commits/<sha>` before reporting.
+4. **Do NOT merge PRs** — open the PR and stop. The repo owner merges.
+5. **No unsolicited changes** — only touch files listed in the task spec.
+6. **OWASP `failOnError=false` — DO NOT REMOVE** — the `NVD_API_KEY` secret is not set in this repo. Without this flag the build crashes with a 403 from NVD. This is intentional and must stay until the secret is added.

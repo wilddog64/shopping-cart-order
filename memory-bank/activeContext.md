@@ -1,21 +1,4 @@
-## CI Status (as of 2026-03-13)
-
-**Branch:** `fix/ci-stabilization` — PR #1 open
-
-| Job | Status |
-|---|---|
-| Build & Test | ❌ fail |
-
-**Failure:** `Could not find artifact com.shoppingcart:rabbitmq-client:jar:1.0.0-SNAPSHOT in github-rabbitmq-client`
-
-maven-settings.xml and `-s` flag are already in place. Root cause: the build job is
-missing `packages: read` permission — `GITHUB_TOKEN` cannot read packages from another
-repo (`wilddog64/rabbitmq-client-java`) without this explicit permission declaration.
-
-**Round 3 fix required (spec: `wilddog64/shopping-cart-infra` → `docs/plans/ci-stabilization-round3.md` @ c5797539):**
-- `.github/workflows/ci.yml`: add `packages: read` to build job permissions block
-
----# Active Context: Order Service
+# Active Context: Order Service
 
 ## Current Status (2026-03-14)
 
@@ -37,7 +20,15 @@ CI green. PR #1 merged to main. Branch protection active.
 
 ## Active Task
 
-- **P4 linter** — Checkstyle + OWASP. Spec: `wilddog64/shopping-cart-infra/docs/plans/p4-linter-order.md`. Branch: `feature/p4-linter`. Not started.
+- **P4 linter** — Checkstyle + OWASP. Spec: `wilddog64/shopping-cart-infra/docs/plans/p4-linter-order.md`. Branch: `feature/p4-linter`. Not started — assigned to Codex.
+
+## Agent Rules (Codex must follow)
+
+1. Read the spec at `wilddog64/shopping-cart-infra/docs/plans/p4-linter-order.md` before touching any code.
+2. Use CI to verify — do NOT run `mvn` locally (local Java 25 vs pom Java 21 causes timeouts).
+3. Do NOT update `memory-bank/activeContext.md` until `gh run list --repo wilddog64/shopping-cart-order` shows `completed success`.
+4. Verify commit SHA with `gh api repos/wilddog64/shopping-cart-order/commits/<sha>` before reporting.
+5. Open a PR when CI is green; do NOT merge it yourself.
 
 ## Key Notes
 

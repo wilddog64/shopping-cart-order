@@ -21,7 +21,7 @@ CI green. All PRs merged to main. Branch protection active.
 
 ## Active Task
 
-- **v0.1.0 release** — cut `release/v0.1.0` from main, add CHANGELOG, open PR, tag after merge.
+- **CI follow-up — GitHub Packages auth** — Dockerfile now mounts `GH_TOKEN` secret and copies `checkstyle.xml` (commit `cb663a2`). Latest CI run 23175038080 succeeded; release work remains.
 
 ## OWASP Note (DO NOT REVERT)
 

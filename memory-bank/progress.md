@@ -65,6 +65,10 @@
 - [ ] Load/performance testing
 - [ ] Contract tests (e.g., Pact) for RabbitMQ event schema compatibility
 
+## Recent Work
+
+- 2026-03-17 — Dockerfile uses BuildKit `GH_TOKEN` secret to authenticate to GitHub Packages and copies `checkstyle.xml` alongside the pom (commit `cb663a2`); CI run 23175038080 succeeded.
+
 ## API Endpoints Summary
 
 | Method | Path | Description | Status |

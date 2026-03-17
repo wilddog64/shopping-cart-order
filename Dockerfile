@@ -11,17 +11,20 @@ WORKDIR /app
 # Install Maven
 RUN apk add --no-cache maven
 
-# Copy pom.xml first for dependency caching
-COPY pom.xml .
+# Copy build descriptors first for caching
+COPY pom.xml checkstyle.xml ./
 
-# Download dependencies (cached layer)
-RUN mvn dependency:go-offline -B
+# Configure Maven credentials and download dependencies
+RUN --mount=type=secret,id=GH_TOKEN \
+    mkdir -p /root/.m2 && \
+    printf '<settings>\n  <servers>\n    <server>\n      <id>github-rabbitmq-client</id>\n      <username>x-token-auth</username>\n      <password>%s</password>\n    </server>\n  </servers>\n</settings>\n' "$(cat /run/secrets/GH_TOKEN)" > /root/.m2/settings.xml && \
+    mvn dependency:go-offline -B
 
 # Copy source code
 COPY src ./src
 
 # Build the application
-RUN mvn package -DskipTests -B
+RUN --mount=type=secret,id=GH_TOKEN mvn package -DskipTests -B
 
 # Extract layers for optimized Docker image
 RUN java -Djarmode=layertools -jar target/*.jar extract

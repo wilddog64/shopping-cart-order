@@ -16,31 +16,19 @@ The Order Service is a Spring Boot microservice responsible for managing custome
 
 ## Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        API Gateway                               │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      Order Service                               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │  Controller  │──│   Service    │──│    Repository        │  │
-│  │    Layer     │  │    Layer     │  │      Layer           │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-│         │                 │                     │               │
-│         ▼                 ▼                     ▼               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │   Security   │  │    Event     │  │     PostgreSQL       │  │
-│  │   Filters    │  │  Publisher   │  │     Database         │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                    ┌──────────────────┐
-                    │     RabbitMQ     │
-                    │   Message Broker │
-                    └──────────────────┘
+```mermaid
+graph TD
+    GW[API Gateway] --> OS
+
+    subgraph OS[Order Service]
+        C[Controller Layer] --> S[Service Layer]
+        S --> R[Repository Layer]
+        C --> SEC[Security Filters]
+        S --> EP[Event Publisher]
+        R --> PG[(PostgreSQL)]
+    end
+
+    EP --> MQ[RabbitMQ / Message Broker]
 ```
 
 ## Component Details
@@ -87,10 +75,18 @@ public class Order {
 
 ### Order Status Flow
 
-```
-PENDING → CONFIRMED → PROCESSING → SHIPPED → DELIVERED
-    │         │            │
-    └─────────┴────────────┴──────→ CANCELLED
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING
+    PENDING --> CONFIRMED
+    CONFIRMED --> PROCESSING
+    PROCESSING --> SHIPPED
+    SHIPPED --> DELIVERED
+    PENDING --> CANCELLED
+    CONFIRMED --> CANCELLED
+    PROCESSING --> CANCELLED
+    DELIVERED --> [*]
+    CANCELLED --> [*]
 ```
 
 ## Security Architecture

@@ -16,31 +16,19 @@ The Order Service is a Spring Boot microservice responsible for managing custome
 
 ## Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                        API Gateway                               │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────────┐
-│                      Order Service                               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │  Controller  │──│   Service    │──│    Repository        │  │
-│  │    Layer     │  │    Layer     │  │      Layer           │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-│         │                 │                     │               │
-│         ▼                 ▼                     ▼               │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │   Security   │  │    Event     │  │     PostgreSQL       │  │
-│  │   Filters    │  │  Publisher   │  │     Database         │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-└─────────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                    ┌──────────────────┐
-                    │     RabbitMQ     │
-                    │   Message Broker │
-                    └──────────────────┘
+```mermaid
+graph TD
+    GW[API Gateway] --> C
+
+    subgraph OrderService[Order Service]
+        C[Controller Layer] --> S[Service Layer]
+        S --> R[Repository Layer]
+        C --> SEC[Security Filters]
+        S --> EP[Event Publisher]
+        R --> PG[(PostgreSQL)]
+    end
+
+    EP --> MQ[RabbitMQ / Message Broker]
 ```
 
 ## Component Details
@@ -87,21 +75,40 @@ public class Order {
 
 ### Order Status Flow
 
-```
-PENDING → CONFIRMED → PROCESSING → SHIPPED → DELIVERED
-    │         │            │
-    └─────────┴────────────┴──────→ CANCELLED
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING
+    PENDING --> PAID
+    PAID --> PROCESSING
+    PROCESSING --> SHIPPED
+    SHIPPED --> COMPLETED
+    PENDING --> CANCELLED
+    PAID --> CANCELLED
+    PROCESSING --> CANCELLED
+    COMPLETED --> [*]
+    CANCELLED --> [*]
 ```
 
 ## Security Architecture
 
 ### Authentication Flow
 
-1. Client obtains JWT from Keycloak
-2. Client includes JWT in Authorization header
-3. Order Service validates JWT signature using JWKS
-4. Roles extracted from JWT claims (realm_access, resource_access, groups)
-5. Spring Security authorizes based on roles
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant KC as Keycloak
+    participant OS as Order Service
+    participant JWKS as Keycloak JWKS
+
+    C->>KC: Obtain JWT token
+    KC-->>C: JWT token
+    C->>OS: Request + Authorization: Bearer <token>
+    OS->>JWKS: Fetch signing keys
+    JWKS-->>OS: Public keys
+    OS->>OS: Validate JWT signature
+    OS->>OS: Extract roles from claims
+    OS-->>C: Authorized response
+```
 
 ### Security Headers
 

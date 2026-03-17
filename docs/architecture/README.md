@@ -93,11 +93,22 @@ stateDiagram-v2
 
 ### Authentication Flow
 
-1. Client obtains JWT from Keycloak
-2. Client includes JWT in Authorization header
-3. Order Service validates JWT signature using JWKS
-4. Roles extracted from JWT claims (realm_access, resource_access, groups)
-5. Spring Security authorizes based on roles
+```mermaid
+sequenceDiagram
+    participant C as Client
+    participant KC as Keycloak
+    participant OS as Order Service
+    participant JWKS as Keycloak JWKS
+
+    C->>KC: Obtain JWT token
+    KC-->>C: JWT token
+    C->>OS: Request + Authorization: Bearer <token>
+    OS->>JWKS: Fetch signing keys
+    JWKS-->>OS: Public keys
+    OS->>OS: Validate JWT signature
+    OS->>OS: Extract roles from claims
+    OS-->>C: Authorized response
+```
 
 ### Security Headers
 

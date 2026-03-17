@@ -45,26 +45,17 @@ kubectl apply -f k8s/
 ## Usage
 
 ### Architecture
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Order Service                            │
-├─────────────────────────────────────────────────────────────┤
-│  REST API          │  Event Publisher    │  Event Consumer  │
-│  - POST /orders    │  - order.created    │  - inventory.*   │
-│  - GET /orders     │  - order.paid       │  - payment.*     │
-│  - PATCH /orders   │  - order.shipped    │                  │
-│                    │  - order.completed  │                  │
-│                    │  - order.cancelled  │                  │
-├─────────────────────────────────────────────────────────────┤
-│                    PostgreSQL                                │
-│                    (orders, order_items)                     │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────┐
-                    │    RabbitMQ     │
-                    │  events exchange │
-                    └─────────────────┘
+
+```mermaid
+graph TD
+    GW[API Gateway] --> C[Controllers]
+    subgraph OrderService[Order Service]
+        C --> SVC[Service Layer]
+        SVC --> REPO[Repository]
+        SVC --> EP[Event Publisher]
+        REPO --> PG[(PostgreSQL)]
+    end
+    EP --> MQ[RabbitMQ]
 ```
 
 ### Event Publishing

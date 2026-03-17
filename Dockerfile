@@ -11,8 +11,8 @@ WORKDIR /app
 # Install Maven
 RUN apk add --no-cache maven
 
-# Copy pom.xml first for dependency caching
-COPY pom.xml .
+# Copy pom.xml and checkstyle config first for dependency caching
+COPY pom.xml checkstyle.xml ./
 
 # Download dependencies (cached layer)
 # GH_TOKEN secret authenticates against GitHub Packages (rabbitmq-client-java)

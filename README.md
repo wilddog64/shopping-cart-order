@@ -12,27 +12,7 @@ The Order Service handles:
 
 ## Architecture
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                     Order Service                            │
-├─────────────────────────────────────────────────────────────┤
-│  REST API          │  Event Publisher    │  Event Consumer  │
-│  - POST /orders    │  - order.created    │  - inventory.*   │
-│  - GET /orders     │  - order.paid       │  - payment.*     │
-│  - PATCH /orders   │  - order.shipped    │                  │
-│                    │  - order.completed  │                  │
-│                    │  - order.cancelled  │                  │
-├─────────────────────────────────────────────────────────────┤
-│                    PostgreSQL                                │
-│                    (orders, order_items)                     │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-                    ┌─────────────────┐
-                    │    RabbitMQ     │
-                    │  events exchange │
-                    └─────────────────┘
-```
+See **[Service Architecture](docs/architecture/README.md)** for component diagram, service layers, order status flow, and security architecture.
 
 ## Events Published
 
@@ -214,6 +194,17 @@ shopping-cart-order/
 ├── README.md
 └── CLAUDE.md
 ```
+
+## Documentation
+
+### Architecture
+- **[Service Architecture](docs/architecture/README.md)** — component diagram, service layers, order status flow, and security architecture.
+
+### API Reference
+- **[API Reference](docs/api/README.md)** — endpoint details, payloads, and error codes.
+
+### Troubleshooting
+- **[Troubleshooting Guide](docs/troubleshooting/README.md)** — common issues and debugging tips.
 
 ## Related Repositories
 

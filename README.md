@@ -1,17 +1,50 @@
 # Shopping Cart Order Service
 
-Order processing microservice for the Shopping Cart platform with RabbitMQ integration for event-driven architecture.
+A Spring Boot microservice that manages the full order lifecycle (creation, payment, fulfillment) for the Shopping Cart platform. It publishes RabbitMQ events for each state change and persists orders in PostgreSQL.
 
-## Overview
+---
 
-The Order Service handles:
-- Order creation and lifecycle management
-- Payment processing coordination
-- Shipping and fulfillment tracking
-- Event publishing for order state changes
+## Quick Start
 
-## Architecture
+### Prerequisites
+- Java 21+
+- Maven 3.9+
+- PostgreSQL 15+
+- RabbitMQ 3.12+
 
+### Install & Run
+```bash
+# Install dependencies + build
+mvn clean package
+
+# Run locally with Docker Compose backing services
+Docker compose up -d
+mvn spring-boot:run
+
+# Deploy manifests (requires shopping-cart-infra)
+kubectl apply -f k8s/
+```
+
+### Environment Variables
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SERVER_PORT` | 8080 | HTTP server port |
+| `DB_HOST` | localhost | PostgreSQL host |
+| `DB_PORT` | 5432 | PostgreSQL port |
+| `DB_NAME` | orders | Database name |
+| `DB_USERNAME` | postgres | Database username |
+| `DB_PASSWORD` | postgres | Database password |
+| `RABBITMQ_HOST` | localhost | RabbitMQ host |
+| `RABBITMQ_PORT` | 5672 | RabbitMQ AMQP port |
+| `VAULT_ENABLED` | false | Enable Vault integration |
+| `VAULT_ADDR` | http://localhost:8200 | Vault address |
+| `VAULT_ROLE` | order-publisher | Vault role for RabbitMQ |
+
+---
+
+## Usage
+
+### Architecture
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                     Order Service                            │
@@ -34,193 +67,116 @@ The Order Service handles:
                     └─────────────────┘
 ```
 
-## Events Published
-
+### Event Publishing
 | Event | Routing Key | Description |
 |-------|-------------|-------------|
-| OrderCreatedEvent | `order.created` | New order placed |
-| OrderPaidEvent | `order.paid` | Payment confirmed |
-| OrderShippedEvent | `order.shipped` | Order shipped |
-| OrderCompletedEvent | `order.completed` | Order delivered |
-| OrderCancelledEvent | `order.cancelled` | Order cancelled |
+| `order.created` | `order.created` | New order placed |
+| `order.paid` | `order.paid` | Payment confirmed |
+| `order.shipped` | `order.shipped` | Shipment started |
+| `order.completed` | `order.completed` | Delivery confirmed |
+| `order.cancelled` | `order.cancelled` | Order cancelled |
 
-See [Message Schemas](../shopping-cart-infra/docs/message-schemas.md) for event format details.
-
-## Prerequisites
-
-- Java 21+
-- Maven 3.9+
-- PostgreSQL 15+
-- RabbitMQ 3.12+ (via shopping-cart-infra)
-- HashiCorp Vault (optional, for dynamic credentials)
-
-## Quick Start
-
-### 1. Build
-
+### API Snippets
 ```bash
-mvn clean package
-```
-
-### 2. Run with Docker Compose (Development)
-
-```bash
-docker-compose up -d
-mvn spring-boot:run
-```
-
-### 3. Run with Kubernetes
-
-```bash
-# Deploy to k3d cluster with shopping-cart-infra
-kubectl apply -f k8s/
-```
-
-## Configuration
-
-### Environment Variables
-
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `SERVER_PORT` | 8080 | HTTP server port |
-| `DB_HOST` | localhost | PostgreSQL host |
-| `DB_PORT` | 5432 | PostgreSQL port |
-| `DB_NAME` | orders | Database name |
-| `DB_USERNAME` | postgres | Database username |
-| `DB_PASSWORD` | postgres | Database password |
-| `RABBITMQ_HOST` | localhost | RabbitMQ host |
-| `RABBITMQ_PORT` | 5672 | RabbitMQ AMQP port |
-| `VAULT_ENABLED` | false | Enable Vault integration |
-| `VAULT_ADDR` | http://localhost:8200 | Vault address |
-| `VAULT_ROLE` | order-publisher | Vault role for RabbitMQ |
-
-### Vault Integration
-
-When `VAULT_ENABLED=true`, the service fetches RabbitMQ credentials dynamically from Vault:
-
-```bash
-export VAULT_ENABLED=true
-export VAULT_ADDR=http://vault.vault.svc.cluster.local:8200
-export VAULT_ROLE=order-publisher
-```
-
-## API Endpoints
-
-### Create Order
-```bash
+# Create order
 POST /api/orders
-Content-Type: application/json
 
-{
-  "customerId": "cust-123",
-  "items": [
-    {
-      "productId": "prod-456",
-      "productName": "Widget",
-      "quantity": 2,
-      "unitPrice": 29.99
-    }
-  ],
-  "shippingAddress": {
-    "street": "123 Main St",
-    "city": "Springfield",
-    "state": "IL",
-    "postalCode": "62701",
-    "country": "US"
-  }
-}
-```
-
-### Get Order
-```bash
+# Get order
 GET /api/orders/{orderId}
-```
 
-### List Orders by Customer
-```bash
+# List orders by customer
 GET /api/orders?customerId=cust-123
-```
 
-### Update Order Status
-```bash
+# Update status
 PATCH /api/orders/{orderId}/status
-Content-Type: application/json
 
-{
-  "status": "SHIPPED",
-  "trackingNumber": "1Z999AA10123456784",
-  "carrier": "UPS"
-}
-```
-
-### Cancel Order
-```bash
+# Cancel order
 POST /api/orders/{orderId}/cancel
-Content-Type: application/json
-
-{
-  "reason": "Customer requested cancellation"
-}
 ```
 
-## Health & Metrics
-
+### Health & Metrics
 | Endpoint | Description |
 |----------|-------------|
-| `/actuator/health` | Health check |
-| `/actuator/metrics` | Metrics overview |
-| `/actuator/prometheus` | Prometheus metrics |
+| `/actuator/health` | Spring Boot health check |
+| `/actuator/metrics` | Micrometer metrics |
+| `/actuator/prometheus` | Prometheus scrape endpoint |
 
-## Development
-
-### Run Tests
-
+### Development Commands
 ```bash
 # Unit tests
 mvn test
 
-# Integration tests (requires Docker)
+# Integration tests (Testcontainers)
 mvn verify -Pintegration
-```
 
-### Code Style
-
-```bash
-# Format code
+# Formatting & lint
 mvn spotless:apply
-
-# Check style
 mvn spotless:check
 ```
 
-## Project Structure
+---
 
+## Architecture
+See **[Service Architecture](docs/architecture/README.md)** for component breakdowns, data model, and RabbitMQ integration details.
+
+---
+
+## Directory Layout
 ```
 shopping-cart-order/
-├── src/
-│   ├── main/
-│   │   ├── java/com/shoppingcart/order/
-│   │   │   ├── config/         # Spring configuration
-│   │   │   ├── controller/     # REST controllers
-│   │   │   ├── dto/            # Request/response DTOs
-│   │   │   ├── entity/         # JPA entities
-│   │   │   ├── event/          # RabbitMQ events
-│   │   │   ├── repository/     # Data repositories
-│   │   │   └── service/        # Business logic
-│   │   └── resources/
-│   │       └── application.yml
-│   └── test/
+├── src/main/java/com/shoppingcart/order/
+│   ├── config/      # Spring configuration
+│   ├── controller/  # REST controllers
+│   ├── dto/         # DTOs
+│   ├── entity/      # JPA entities
+│   ├── event/       # RabbitMQ events
+│   ├── repository/  # Data access
+│   └── service/     # Business logic
+├── src/test/java/   # Unit + integration tests
+├── k8s/             # Kubernetes manifests
+├── docs/            # Architecture/API/testing/troubleshooting
 ├── pom.xml
-├── README.md
-└── CLAUDE.md
+└── Makefile, Dockerfile, etc.
 ```
 
-## Related Repositories
+---
 
-- [shopping-cart-infra](../shopping-cart-infra) - Kubernetes infrastructure, RabbitMQ cluster
-- [shopping-cart-product-catalog](../shopping-cart-product-catalog) - Product catalog service
-- [rabbitmq-client-java](../rabbitmq-client-java) - Java RabbitMQ client library
+## Documentation
+
+### Architecture
+- **[Service Architecture](docs/architecture/README.md)** — System overview, data model, event contracts.
+
+### API Reference
+- **[API Reference](docs/api/README.md)** — Endpoint payloads, examples, and error codes.
+
+### Testing
+- **[Testing Guide](docs/testing/README.md)** — Maven unit/integration commands, Jacoco, OWASP notes.
+
+### Troubleshooting
+- **[Troubleshooting Guide](docs/troubleshooting/README.md)** — Vault, RabbitMQ, database connectivity issues.
+
+### Issue Logs
+- **[OWASP NVD API key needed](docs/issues/2026-03-14-owasp-nvd-api-key.md)** — Dependency Check configuration pending `NVD_API_KEY` secret.
+- **[CI GitHub Packages auth](docs/issues/2026-03-17-ci-github-packages-auth.md)** — Dockerfile/CI changes required for GitHub Packages access.
+
+---
+
+## Releases
+
+| Version | Date | Highlights |
+|---------|------|------------|
+| v0.1.0 | TBD | Initial Spring Boot release with RabbitMQ events and PostgreSQL persistence |
+
+---
+
+## Related
+- [Platform Architecture](https://github.com/wilddog64/shopping-cart-infra/blob/main/docs/architecture.md)
+- [shopping-cart-infra](https://github.com/wilddog64/shopping-cart-infra)
+- [shopping-cart-product-catalog](https://github.com/wilddog64/shopping-cart-product-catalog)
+- [shopping-cart-payment](https://github.com/wilddog64/shopping-cart-payment)
+- [shopping-cart-basket](https://github.com/wilddog64/shopping-cart-basket)
+
+---
 
 ## License
-
 Apache 2.0

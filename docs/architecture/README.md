@@ -18,9 +18,9 @@ The Order Service is a Spring Boot microservice responsible for managing custome
 
 ```mermaid
 graph TD
-    GW[API Gateway] --> OS
+    GW[API Gateway] --> C
 
-    subgraph OS[Order Service]
+    subgraph OrderService[Order Service]
         C[Controller Layer] --> S[Service Layer]
         S --> R[Repository Layer]
         C --> SEC[Security Filters]
@@ -78,14 +78,14 @@ public class Order {
 ```mermaid
 stateDiagram-v2
     [*] --> PENDING
-    PENDING --> CONFIRMED
-    CONFIRMED --> PROCESSING
+    PENDING --> PAID
+    PAID --> PROCESSING
     PROCESSING --> SHIPPED
-    SHIPPED --> DELIVERED
+    SHIPPED --> COMPLETED
     PENDING --> CANCELLED
-    CONFIRMED --> CANCELLED
+    PAID --> CANCELLED
     PROCESSING --> CANCELLED
-    DELIVERED --> [*]
+    COMPLETED --> [*]
     CANCELLED --> [*]
 ```
 

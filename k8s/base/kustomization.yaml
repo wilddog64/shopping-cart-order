@@ -19,7 +19,6 @@ resources:
 - secret.yaml
 - deployment.yaml
 - service.yaml
-- hpa.yaml
 
 commonLabels:
   app.kubernetes.io/name: order-service

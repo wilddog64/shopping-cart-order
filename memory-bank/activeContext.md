@@ -21,6 +21,7 @@ CI green. All PRs merged to main. Branch protection active.
 
 ## Active Task
 
+- **Multi-arch workflow pin** — branch `fix/multiarch-workflow-pin` updates `.github/workflows/ci.yml` to use infra SHA `999f8d7` so CI pushes amd64+arm64 images.
 - **CI follow-up — GitHub Packages auth** — Dockerfile now mounts `GH_TOKEN` secret and copies `checkstyle.xml` (commit `cb663a2`). Latest CI run 23175038080 succeeded; release work remains.
 
 ## OWASP Note (DO NOT REVERT)

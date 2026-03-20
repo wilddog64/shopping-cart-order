@@ -44,6 +44,7 @@
 - [x] k8s/base/hpa.yaml
 - [x] k8s/base/kustomization.yaml
 - [x] .gitignore
+- [x] CI workflow pin updated to `.github/workflows/ci.yml@999f8d7` for multi-arch builds (2026-03-17)
 
 ### Documentation
 - [x] CLAUDE.md — AI assistant guidance

@@ -18,16 +18,21 @@ With 2 replicas: effectively 40 req/s / 200 req/min per IP.
 
 ## Fix: Replace Caffeine cache with Redis-backed Bucket4j
 
-Bucket4j supports Redis as a distributed state backend via `bucket4j-redis`.
+Bucket4j supports Redis as a distributed state backend via `bucket4j-redisson` (Redisson integration).
 
-### 1. Add dependency
+### 1. Add dependencies
 
 ```xml
 <!-- pom.xml -->
 <dependency>
     <groupId>com.bucket4j</groupId>
-    <artifactId>bucket4j-redis</artifactId>
+    <artifactId>bucket4j-redisson</artifactId>
     <version>8.10.1</version>
+</dependency>
+<dependency>
+    <groupId>org.redisson</groupId>
+    <artifactId>redisson</artifactId>
+    <version>3.27.2</version>
 </dependency>
 ```
 
@@ -73,20 +78,22 @@ public ProxyManager<String> bucketProxyManager(RedissonClient redissonClient) {
 private final ProxyManager<String> bucketProxyManager;
 private final RateLimitConfig rateLimitConfig;
 
-// Replace bucket lookup:
+// Replace bucket lookup — preserve all 3 existing rate bands:
 BucketConfiguration config = BucketConfiguration.builder()
-    .addLimit(rateLimitConfig.createBandwidth())
+    .addLimit(rateLimitConfig.createBurstBandwidth())
+    .addLimit(rateLimitConfig.createPerSecondBandwidth())
+    .addLimit(rateLimitConfig.createPerMinuteBandwidth())
     .build();
 Bucket bucket = bucketProxyManager.builder().build(clientIp, config);
 ```
 
-### 4. Environment variable
+### 4. Environment variables
 
-`REDIS_HOST` and `REDIS_PORT` are already set (same Redis used by basket session storage).
+Add `REDIS_HOST` and `REDIS_PORT` to `k8s/base/configmap.yaml` and `application.yml` — this service does not currently have Redis config. The Redis instance is in the `shopping-cart-data` namespace.
 
 ## Definition of Done
 
-- [ ] `bucket4j-redis` added to `pom.xml`
+- [ ] `bucket4j-redisson` + `redisson` added to `pom.xml`
 - [ ] `RedissonClient` bean configured from `REDIS_HOST` / `REDIS_PORT`
 - [ ] `ProxyManager<String>` replaces `Cache<String, Bucket>` in `RateLimitFilter`
 - [ ] Rate limit is enforced cluster-wide (test: 2 pods, same IP, combined count hits limit)

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Fixed
+- Align k8s manifests with data-layer: correct DB_PASSWORD, RABBITMQ_PASSWORD, add SPRING_CLOUD_VAULT_ENABLED=false (Vault unreachable from app cluster), reduce resource requests cpu 200m→100m / memory 512Mi→256Mi for t3.medium headroom
+
 ### Changed
 - Reduce deployment replicas from 2 to 1 for dev/test environment; delete HPA (`minReplicas: 2` was scaling pods back up on single-node cluster); will reintroduce in v1.1.0 EKS
 

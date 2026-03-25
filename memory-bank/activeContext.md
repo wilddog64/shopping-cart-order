@@ -2,9 +2,10 @@
 
 ## Current Status (2026-03-25)
 
-**PR #18 MERGED** — `e6739d7` 2026-03-25 — CI GitHub Packages auth fix (GITHUB_TOKEN + public package). Copilot 2 findings fixed. `enforce_admins` restored.
-**Active branch:** `docs/next-improvements`
-**rabbitmq-client-java:** repo + package made public; `enforce_admins` enabled.
+**PR #19 MERGED** — `aa022a5` 2026-03-25 — configuration guide alternatives (ConfigMap mount, Spring Cloud Kubernetes, Kafka). Copilot 3 findings fixed. `enforce_admins` restored.
+**PR #18 MERGED** — `e6739d7` 2026-03-25 — CI GitHub Packages auth fix (GITHUB_TOKEN + public package). Copilot 2 findings fixed.
+**Active branch:** `docs/next-improvements-2`
+**rabbitmq-client-java:** repo + package public; `enforce_admins` enabled.
 
 ---
 

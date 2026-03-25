@@ -51,14 +51,8 @@ require a restart — `RateLimitConfig` is not annotated `@RefreshScope`.
 | `RABBITMQ_USE_TLS` | `false` | Enable TLS for broker connection |
 | `RABBITMQ_USERNAME` | `guest` | Static credentials (when Vault disabled) |
 | `RABBITMQ_PASSWORD` | `guest` | Static credentials (when Vault disabled) |
-| `RABBITMQ_POOL_SIZE` | `10` | Connection pool size |
-| `RABBITMQ_PREFETCH_COUNT` | `10` | Consumer prefetch count |
-
-**Connection pool:**
-
-| Variable | Default | Description |
-|---|---|---|
 | `RABBITMQ_POOL_SIZE` | `10` | Channel pool size |
+| `RABBITMQ_PREFETCH_COUNT` | `10` | Consumer prefetch count |
 
 **Retry:**
 
@@ -90,9 +84,10 @@ of using the static `RABBITMQ_USERNAME` / `RABBITMQ_PASSWORD` values.
 | `VAULT_ROLE` | `order-publisher` | Vault role for RabbitMQ credentials |
 | `VAULT_RABBITMQ_PATH` | `rabbitmq` | Vault secrets engine mount path |
 
-In cluster, Vault credentials are injected via Kubernetes ServiceAccount token (not a
-static Vault token). The ESO `ExternalSecret` syncs the dynamic credentials into a
-Kubernetes Secret before the pod starts.
+When enabled, the service fetches RabbitMQ credentials from Vault at startup using a
+Kubernetes ServiceAccount token for authentication. The static `RABBITMQ_USERNAME` /
+`RABBITMQ_PASSWORD` values are ignored when `VAULT_ENABLED=true`. The k8s manifests
+currently deploy with `VAULT_ENABLED=false` and static credentials.
 
 ### OAuth2 / Keycloak
 
@@ -100,33 +95,39 @@ Kubernetes Secret before the pod starts.
 |---|---|---|
 | `OAUTH2_ENABLED` | `false` | Enable JWT bearer token validation |
 | `OAUTH2_ISSUER_URI` | `http://keycloak.identity.svc.cluster.local/realms/shopping-cart` | Keycloak issuer URI |
-| `OAUTH2_JWK_SET_URI` | `.../.well-known/openid-connect/certs` | JWK set endpoint for JWT verification |
+| `OAUTH2_JWK_SET_URI` | `.../protocol/openid-connect/certs` | JWK set endpoint for JWT verification |
 
-When `OAUTH2_ENABLED=false`, all endpoints are open. Set to `true` in staging/prod with the
-correct Keycloak issuer URI.
+When `OAUTH2_ENABLED=false`, API endpoints under `/api/**` are accessible without
+authentication, but all other paths remain blocked except for the explicitly permitted
+actuator endpoints. Set to `true` in staging/prod with the correct Keycloak issuer URI.
 
 ### Logging
 
 | Variable | Default | Description |
 |---|---|---|
 | `SECURITY_LOG_LEVEL` | `INFO` | Log level for `org.springframework.security` |
+| `LOGGING_LEVEL_ROOT` | `INFO` | Root logger level (Spring Boot standard override) |
+| `LOGGING_LEVEL_COM_SHOPPINGCART` | `DEBUG` | Log level for `com.shoppingcart.order` (Spring Boot standard override) |
 
-Root level is always `INFO`. `com.shoppingcart.order` is always `DEBUG`.
+The `LOGGING_LEVEL_*` variables follow the standard Spring Boot externalized config pattern
+and override the defaults set in `application.yml`.
 
 ---
 
 ## Actuator Endpoints
 
-The following management endpoints are exposed at `/actuator/*`:
+The following management endpoints are exposed by Spring Boot Actuator at `/actuator/*`:
 
-| Endpoint | Path |
-|---|---|
-| Health (with details for authorized users) | `/actuator/health` |
-| Info | `/actuator/info` |
-| Metrics | `/actuator/metrics` |
-| Prometheus scrape | `/actuator/prometheus` |
+| Endpoint | Path | Reachable by default |
+|---|---|---|
+| Health (with details for authorized users) | `/actuator/health` | ✅ |
+| Info | `/actuator/info` | ✅ |
+| Prometheus scrape | `/actuator/prometheus` | ✅ |
+| Metrics | `/actuator/metrics` | ❌ exposed by Actuator but blocked by `SecurityConfig` |
 
-`/actuator/refresh` is **not** exposed — see below.
+With the default security configuration, only `health`, `info`, and `prometheus` are
+reachable. `/actuator/metrics` is exposed by Actuator but denied by `SecurityConfig` unless
+you explicitly permit it. `/actuator/refresh` is **not** exposed — see below.
 
 ---
 
@@ -204,7 +205,11 @@ curl -X POST http://<pod-ip>:8080/actuator/refresh
 curl -X POST http://<any-pod>:8080/actuator/busrefresh
 ```
 
-Bus uses the existing RabbitMQ connection — no separate broker needed.
+Spring Cloud Bus uses Spring AMQP with its own `spring.rabbitmq.*` connection factory
+(including credentials and TLS). It will **not** automatically reuse the custom `rabbitmq.*`
+configuration or the existing `rabbitmq-client` connection, but it talks to the same broker.
+You must add `spring.rabbitmq.*` properties (host, port, credentials) alongside the existing
+`rabbitmq.*` config — no separate broker needed.
 
 ### What does NOT auto-refresh
 

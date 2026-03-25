@@ -4,6 +4,7 @@
 
 ### Added
 - `docs/guides/configuration.md` — full env var reference, actuator endpoints, Spring Cloud Bus config auto-refresh how-to, and three broker-free alternatives (ConfigMap mount, Spring Cloud Kubernetes, Kafka)
+- `docs/issues/2026-03-25-rabbitmq-connection-refused.md` — root cause analysis for RabbitMQ CrashLoopBackOff (fixed in shopping-cart-infra PR #22)
 
 ### Fixed
 - CI: switch `lint` and `build` jobs from `PACKAGES_TOKEN` to `GITHUB_TOKEN` in `.github/maven-settings.xml` and `.github/workflows/ci.yml` — resolves 401 when resolving `rabbitmq-client-java` from GitHub Packages; `GITHUB_TOKEN` is automatic and scoped to `packages: read` via workflow permissions

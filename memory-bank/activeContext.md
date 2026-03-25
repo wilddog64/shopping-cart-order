@@ -1,5 +1,12 @@
 # Active Context: Order Service
 
+## Current Status (2026-03-25)
+
+**PR #17 MERGED** — `c68757d` 2026-03-25 — configuration guide + Spring Boot config refresh how-to. Copilot 7 findings fixed. `enforce_admins` restored.
+**Active branch:** `fix/ci-github-packages-auth` — next: fix GitHub Packages 401 in CI workflow
+
+---
+
 ## Current Status (2026-03-14)
 
 CI green. All PRs merged to main. Branch protection active.

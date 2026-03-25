@@ -56,8 +56,8 @@
 
 ## In Flight
 
-- [ ] **PR #17** — `docs/configuration-guide` — configuration guide + Spring Boot refresh how-to; open, Copilot tagged, waiting for review
-- [ ] **Fix GitHub Packages 401** — after PR #17 merges; add `packages: read` permission to CI workflow + `settings.xml` auth — tracked in `docs/issues/2026-03-17-ci-github-packages-auth.md`
+- [x] **PR #17** — merged `c68757d` 2026-03-25 — configuration guide + Spring Boot refresh how-to; Copilot 7 findings fixed
+- [ ] **Fix GitHub Packages 401** — branch `fix/ci-github-packages-auth`; add `packages: read` permission to CI workflow + `settings.xml` auth — tracked in `docs/issues/2026-03-17-ci-github-packages-auth.md`
 
 ## What's Pending / Known Gaps
 

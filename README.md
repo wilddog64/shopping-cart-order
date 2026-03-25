@@ -151,7 +151,7 @@ shopping-cart-order/
 
 ### Issue Logs
 - **[OWASP NVD API key needed](docs/issues/2026-03-14-owasp-nvd-api-key.md)** — Dependency Check configuration pending `NVD_API_KEY` secret.
-- **[CI GitHub Packages auth](docs/issues/2026-03-17-ci-github-packages-auth.md)** — Dockerfile/CI changes required for GitHub Packages access.
+- **[CI GitHub Packages auth](docs/issues/2026-03-17-ci-github-packages-auth.md)** — Will be addressed in PR #18 — switch to `GITHUB_TOKEN` for lint/build jobs.
 
 ---
 

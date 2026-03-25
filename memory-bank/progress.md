@@ -54,6 +54,11 @@
 - [x] docs/architecture/README.md
 - [x] docs/troubleshooting/README.md
 
+## In Flight
+
+- [ ] **PR #17** — `docs/configuration-guide` — configuration guide + Spring Boot refresh how-to; open, Copilot tagged, waiting for review
+- [ ] **Fix GitHub Packages 401** — after PR #17 merges; add `packages: read` permission to CI workflow + `settings.xml` auth — tracked in `docs/issues/2026-03-17-ci-github-packages-auth.md`
+
 ## What's Pending / Known Gaps
 
 - [ ] **Database schema migration** — no Flyway or Liquibase present; `ddl-auto: validate` will fail on a fresh database with no schema; schema creation script needs to be provided or Flyway added

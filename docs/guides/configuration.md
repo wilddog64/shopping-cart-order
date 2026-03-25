@@ -229,6 +229,12 @@ management:
     port: 8081   # separate port, not exposed via Kubernetes Service
 ```
 
+> **Note:** If you move Actuator to a separate management port you **must** also update:
+> - Kubernetes liveness/readiness probes (currently target `/actuator/health` on port 8080)
+> - Prometheus scrape config (currently targets `/actuator/prometheus` on port 8080)
+>
+> Otherwise health checks and metrics scraping will fail after the port change.
+
 ---
 
 ## Alternatives: config refresh without RabbitMQ
@@ -250,8 +256,9 @@ metadata:
   name: order-service-config
   namespace: order-service
 data:
-  RATE_LIMIT_CAPACITY: "100"
-  RATE_LIMIT_REFILL_TOKENS: "10"
+  RATE_LIMIT_PER_MINUTE: "100"
+  RATE_LIMIT_PER_SECOND: "5"
+  RATE_LIMIT_BURST: "20"
 ```
 
 **2. Mount it in the Deployment:**
@@ -275,8 +282,12 @@ spec:
 ```yaml
 spring:
   config:
-    import: "optional:file:/config/"
+    import: "optional:configtree:/config/"
 ```
+
+> Kubernetes mounts each ConfigMap key as a separate file (e.g. `/config/RATE_LIMIT_PER_MINUTE`).
+> Spring Boot's `configtree` import reads this layout correctly — `file:` import expects a single
+> `application.yml`/`.properties` file and will silently resolve nothing against individual key files.
 
 **Limitation:** Spring Boot does not watch mounted files by default. The mounted file updates
 automatically, but the running JVM still holds the old values. You must either:

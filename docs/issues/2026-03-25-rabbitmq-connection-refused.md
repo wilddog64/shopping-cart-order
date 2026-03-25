@@ -2,7 +2,7 @@
 
 **Date:** 2026-03-25
 **GitHub Issue:** wilddog64/shopping-cart-order#16
-**Fixed in:** wilddog64/shopping-cart-infra PR (fix/rabbitmq-guest-remote-access)
+**Fixed in:** [wilddog64/shopping-cart-infra PR #22](https://github.com/wilddog64/shopping-cart-infra/pull/22)
 **Status:** Fixed
 
 ## Symptoms
@@ -14,7 +14,7 @@
 
 ## Root Causes
 
-Two independent issues combined to cause the failure:
+Three independent issues combined to cause the failure:
 
 ### 1. `guest` user restricted to localhost (primary cause)
 
@@ -22,7 +22,7 @@ RabbitMQ restricts the `guest` user to loopback connections (`127.0.0.1`) by def
 Cross-namespace pod connections from `shopping-cart-apps` are rejected at the AMQP layer,
 which Spring Boot AMQP reports as "Connection refused".
 
-**Fix:** Added `loopback_users.guest = none` to `data-layer/rabbitmq/configmap.yaml`.
+**Fix:** Added `loopback_users.guest = false` to `data-layer/rabbitmq/configmap.yaml`.
 This is dev-only; Stage 2 Vault integration replaces `guest` with dynamic credentials.
 
 ### 2. No ArgoCD Application for data-layer (contributing cause)

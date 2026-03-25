@@ -143,6 +143,9 @@ shopping-cart-order/
 ### Testing
 - **[Testing Guide](docs/testing/README.md)** — Maven unit/integration commands, Jacoco, OWASP notes.
 
+### Configuration
+- **[Configuration Guide](docs/guides/configuration.md)** — Env var reference, actuator endpoints, config auto-refresh (Spring Cloud Bus, ConfigMap mount, Spring Cloud Kubernetes, Kafka).
+
 ### Troubleshooting
 - **[Troubleshooting Guide](docs/troubleshooting/README.md)** — Vault, RabbitMQ, database connectivity issues.
 

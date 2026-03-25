@@ -6,6 +6,7 @@
 - `docs/guides/configuration.md` — full env var reference (DB, server, rate-limit, RabbitMQ, Vault, OAuth2, logging) + how-to guide for enabling Spring Cloud Bus config auto-refresh
 
 ### Fixed
+- CI: switch `lint` and `build` jobs from `PACKAGES_TOKEN` to `GITHUB_TOKEN` in `.github/maven-settings.xml` and `ci.yml` — resolves 401 when resolving `rabbitmq-client-java` from GitHub Packages; `GITHUB_TOKEN` is automatic and scoped to `packages: read` via workflow permissions
 - Align k8s manifests with data-layer: correct DB_PASSWORD, RABBITMQ_PASSWORD, add SPRING_CLOUD_VAULT_ENABLED=false (Vault unreachable from app cluster), reduce resource requests cpu 200m→100m / memory 512Mi→256Mi for t3.medium headroom
 
 ### Changed

@@ -150,6 +150,7 @@ shopping-cart-order/
 - **[Troubleshooting Guide](docs/troubleshooting/README.md)** — Vault, RabbitMQ, database connectivity issues.
 
 ### Issue Logs
+- **[RabbitMQ connection refused](docs/issues/2026-03-25-rabbitmq-connection-refused.md)** — Fixed in shopping-cart-infra: `loopback_users.guest = none` + data-layer ArgoCD app + reduced resource requests.
 - **[OWASP NVD API key needed](docs/issues/2026-03-14-owasp-nvd-api-key.md)** — Dependency Check configuration pending `NVD_API_KEY` secret.
 - **[CI GitHub Packages auth](docs/issues/2026-03-17-ci-github-packages-auth.md)** — Fixed in PR #18: switched to `GITHUB_TOKEN`; `rabbitmq-client-java` repo made public.
 

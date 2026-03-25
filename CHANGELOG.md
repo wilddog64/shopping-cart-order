@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Added
+- `docs/guides/configuration.md` — full env var reference (DB, server, rate-limit, RabbitMQ, Vault, OAuth2, logging) + how-to guide for enabling Spring Cloud Bus config auto-refresh
+
 ### Changed
 - Reduce deployment replicas from 2 to 1 for dev/test environment; delete HPA (`minReplicas: 2` was scaling pods back up on single-node cluster); will reintroduce in v1.1.0 EKS
 

@@ -3,7 +3,7 @@
 ## [Unreleased]
 
 ### Added
-- `docs/guides/configuration.md` — full env var reference (DB, server, rate-limit, RabbitMQ, Vault, OAuth2, logging) + how-to guide for enabling Spring Cloud Bus config auto-refresh
+- `docs/guides/configuration.md` — full env var reference, actuator endpoints, Spring Cloud Bus config auto-refresh how-to, and three broker-free alternatives (ConfigMap mount, Spring Cloud Kubernetes, Kafka)
 
 ### Fixed
 - CI: switch `lint` and `build` jobs from `PACKAGES_TOKEN` to `GITHUB_TOKEN` in `.github/maven-settings.xml` and `.github/workflows/ci.yml` — resolves 401 when resolving `rabbitmq-client-java` from GitHub Packages; `GITHUB_TOKEN` is automatic and scoped to `packages: read` via workflow permissions

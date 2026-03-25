@@ -228,3 +228,126 @@ management:
   server:
     port: 8081   # separate port, not exposed via Kubernetes Service
 ```
+
+> **Note:** If you move Actuator to a separate management port you **must** also update:
+> - Kubernetes liveness/readiness probes (currently target `/actuator/health` on port 8080)
+> - Prometheus scrape config (currently targets `/actuator/prometheus` on port 8080)
+>
+> Otherwise health checks and metrics scraping will fail after the port change.
+
+---
+
+## Alternatives: config refresh without RabbitMQ
+
+The Spring Cloud Bus approach above requires a running RabbitMQ broker. Three alternatives
+exist if a broker is unavailable or undesirable.
+
+### Option A — Kubernetes ConfigMap mount (no broker required)
+
+Store environment variables in a ConfigMap and mount it as a file into the pod. Kubernetes
+updates the mounted file in-place (eventually consistent, typically within 60 s) without
+restarting the pod.
+
+**1. Create the ConfigMap:**
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: order-service-config
+  namespace: order-service
+data:
+  RATE_LIMIT_PER_MINUTE: "100"
+  RATE_LIMIT_PER_SECOND: "5"
+  RATE_LIMIT_BURST: "20"
+```
+
+**2. Mount it in the Deployment:**
+```yaml
+spec:
+  containers:
+    - name: order-service
+      envFrom:
+        - configMapRef:
+            name: order-service-config   # injected as env vars at startup
+      volumeMounts:
+        - name: config-vol
+          mountPath: /config             # mounted as files for live reload
+  volumes:
+    - name: config-vol
+      configMap:
+        name: order-service-config
+```
+
+**3. Point Spring Boot at the mounted path:**
+```yaml
+spring:
+  config:
+    import: "optional:configtree:/config/"
+```
+
+> Kubernetes mounts each ConfigMap key as a separate file (e.g. `/config/RATE_LIMIT_PER_MINUTE`).
+> Spring Boot's `configtree` import reads this layout correctly — `file:` import expects a single
+> `application.yml`/`.properties` file and will silently resolve nothing against individual key files.
+
+**Limitation:** Spring Boot does not watch mounted files by default. The mounted file updates
+automatically, but the running JVM still holds the old values. You must either:
+- Restart the pod (simplest — ArgoCD/Helm rollout on ConfigMap hash change), or
+- Add `spring-cloud-starter-kubernetes-client-config` (see Option B).
+
+### Option B — Spring Cloud Kubernetes Config (no broker, live reload via k8s API)
+
+`spring-cloud-starter-kubernetes-client-config` watches ConfigMaps and Secrets directly
+via the Kubernetes API and triggers `@RefreshScope` beans without any message broker.
+
+**Dependency:**
+```xml
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-kubernetes-client-config</artifactId>
+</dependency>
+```
+
+**Enable polling in `application.yml`:**
+```yaml
+spring:
+  cloud:
+    kubernetes:
+      config:
+        enabled: true
+        name: order-service-config
+        namespace: order-service
+      reload:
+        enabled: true
+        strategy: refresh          # or: restart_context | shutdown
+        mode: polling              # or: event (requires watch RBAC)
+        period: 15000              # poll every 15 s
+```
+
+**RBAC** — the pod's ServiceAccount needs `get`/`list`/`watch` on `configmaps` in its namespace.
+The `restart_context` strategy is safer than `refresh` if beans are not annotated `@RefreshScope`.
+
+**When to use:** running on Kubernetes and a message broker is not available or is overkill
+for the refresh use case alone.
+
+### Option C — Kafka broker (drop-in swap for Spring Cloud Bus)
+
+If Kafka is already in the stack, replace the RabbitMQ bus dependency with the Kafka variant.
+The rest of the setup (Steps 2–4 above) is identical.
+
+```xml
+<!-- remove: spring-cloud-starter-bus-amqp -->
+<dependency>
+  <groupId>org.springframework.cloud</groupId>
+  <artifactId>spring-cloud-starter-bus-kafka</artifactId>
+</dependency>
+```
+
+Configure the Kafka broker:
+```yaml
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+```
+
+`/actuator/busrefresh` works the same way — it publishes a refresh event to the Kafka topic
+`springCloudBus`, and all subscribed instances pick it up.

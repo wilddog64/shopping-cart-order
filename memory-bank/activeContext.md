@@ -2,8 +2,9 @@
 
 ## Current Status (2026-03-25)
 
-**PR #17 MERGED** — `c68757d` 2026-03-25 — configuration guide + Spring Boot config refresh how-to. Copilot 7 findings fixed. `enforce_admins` restored.
-**Active branch:** `fix/ci-github-packages-auth` — next: fix GitHub Packages 401 in CI workflow
+**PR #18 MERGED** — `e6739d7` 2026-03-25 — CI GitHub Packages auth fix (GITHUB_TOKEN + public package). Copilot 2 findings fixed. `enforce_admins` restored.
+**Active branch:** `docs/next-improvements`
+**rabbitmq-client-java:** repo + package made public; `enforce_admins` enabled.
 
 ---
 

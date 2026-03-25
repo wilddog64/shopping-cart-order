@@ -146,6 +146,9 @@ shopping-cart-order/
 ### Troubleshooting
 - **[Troubleshooting Guide](docs/troubleshooting/README.md)** — Vault, RabbitMQ, database connectivity issues.
 
+### Guides
+- **[Configuration Guide](docs/guides/configuration.md)** — All env vars with defaults, actuator endpoints, and how-to for enabling Spring Cloud Bus config auto-refresh.
+
 ### Issue Logs
 - **[OWASP NVD API key needed](docs/issues/2026-03-14-owasp-nvd-api-key.md)** — Dependency Check configuration pending `NVD_API_KEY` secret.
 - **[CI GitHub Packages auth](docs/issues/2026-03-17-ci-github-packages-auth.md)** — Dockerfile/CI changes required for GitHub Packages access.

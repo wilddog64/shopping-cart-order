@@ -22,6 +22,9 @@ data:
   RABBITMQ_HOST: "rabbitmq.shopping-cart-data.svc.cluster.local"
   RABBITMQ_PORT: "5672"
   RABBITMQ_VHOST: "/"
+  SPRING_RABBITMQ_HOST: "rabbitmq.shopping-cart-data.svc.cluster.local"
+  SPRING_RABBITMQ_PORT: "5672"
+  SPRING_RABBITMQ_VIRTUAL_HOST: "/"
 
   # Vault integration
   VAULT_ENABLED: "false"

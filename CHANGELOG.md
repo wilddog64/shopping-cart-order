@@ -7,6 +7,7 @@
 - `docs/issues/2026-03-25-rabbitmq-connection-refused.md` — root cause analysis for RabbitMQ CrashLoopBackOff (fixed in shopping-cart-infra PR #22)
 
 ### Fixed
+- `k8s/base/configmap.yaml`: add `SPRING_RABBITMQ_HOST`, `SPRING_RABBITMQ_PORT`, `SPRING_RABBITMQ_VIRTUAL_HOST` — Spring AMQP auto-configured `CachingConnectionFactory` was defaulting to `localhost:5672`, causing `RabbitHealthIndicator` to return DOWN and the startup probe to fail with 503; custom `ConnectionManager` connected correctly but Spring's health indicator used the auto-configured factory
 - CI: switch `lint` and `build` jobs from `PACKAGES_TOKEN` to `GITHUB_TOKEN` in `.github/maven-settings.xml` and `.github/workflows/ci.yml` — resolves 401 when resolving `rabbitmq-client-java` from GitHub Packages; `GITHUB_TOKEN` is automatic and scoped to `packages: read` via workflow permissions
 - Align k8s manifests with data-layer: correct DB_PASSWORD, RABBITMQ_PASSWORD, add SPRING_CLOUD_VAULT_ENABLED=false (Vault unreachable from app cluster), reduce resource requests cpu 200m→100m / memory 512Mi→256Mi for t3.medium headroom
 

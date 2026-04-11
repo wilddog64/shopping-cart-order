@@ -2,10 +2,10 @@
 
 ## Current Status (2026-04-11)
 
+**PR #25 MERGED** — `49ff6b87` 2026-04-11 — fix trivy-action version (`999f8d70`→`39c3072`); docs/next-improvements catch-up. 2 Copilot findings fixed. Branch protection updated: replaced stale `"CI"` status check context with `Build & Test` + `Checkstyle`. `enforce_admins` restored.
 **PR #24 MERGED** — `7f0ea87e` 2026-04-11 — bump rabbitmq-client to 1.0.1; delete RabbitHealthConfig workaround; 3 Copilot findings fixed. `enforce_admins` restored.
 **PR #19 MERGED** — `aa022a5` 2026-03-25 — configuration guide alternatives. Copilot 3 findings fixed. `enforce_admins` restored.
-**PR #18 MERGED** — `e6739d7` 2026-03-25 — CI GitHub Packages auth fix.
-**Active branch:** `docs/next-improvements`
+**Active branch:** `docs/next-improvements-2`
 **rabbitmq-client-java:** v1.0.1 released; JAR on GitHub Packages.
 
 ---

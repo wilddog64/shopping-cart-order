@@ -14,6 +14,9 @@
 
 ### Changed
 - Reduce deployment replicas from 2 to 1 for dev/test environment; delete HPA (`minReplicas: 2` was scaling pods back up on single-node cluster); will reintroduce in v1.1.0 EKS
+- Bump `rabbitmq-client` dependency from `1.0.0-SNAPSHOT` to `1.0.1`; remove
+  `RabbitHealthConfig` workaround — NPE in `ConnectionManager.getStats()` is fixed
+  at source in `1.0.1`, eliminating the `CrashLoopBackOff` on pod startup
 
 ## [0.1.0] - 2026-03-14
 

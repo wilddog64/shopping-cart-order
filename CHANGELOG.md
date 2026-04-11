@@ -5,8 +5,11 @@
 ### Added
 - `docs/guides/configuration.md` — full env var reference, actuator endpoints, Spring Cloud Bus config auto-refresh how-to, and three broker-free alternatives (ConfigMap mount, Spring Cloud Kubernetes, Kafka)
 - `docs/issues/2026-03-25-rabbitmq-connection-refused.md` — root cause analysis for RabbitMQ CrashLoopBackOff (fixed in shopping-cart-infra PR #22)
+- `docs/issues/2026-04-11-copilot-pr25-review-findings.md` — stale status date in activeContext.md, inaccurate CHANGELOG entry for README Issue Logs
+- README: update Issue Logs to 5 most recent entries — Copilot PR #25 findings, Copilot PR #24 findings, RabbitMQ connection refused, Rate limiting distributed state, Multi-arch workflow pin
 
 ### Fixed
+- CI: bump pinned `build-push-deploy.yml` SHA in `publish` job from `999f8d70` (`trivy-action@0.30.0`, invalid) to `39c3072` (`trivy-action@v0.35.0`) — `Build, Scan & Push` was failing on every main push since the Trivy action version didn't exist
 - `k8s/base/configmap.yaml`: add `SPRING_RABBITMQ_HOST`, `SPRING_RABBITMQ_PORT`, `SPRING_RABBITMQ_VIRTUAL_HOST` — Spring AMQP auto-configured `CachingConnectionFactory` was defaulting to `localhost:5672`, causing `RabbitHealthIndicator` to return DOWN and the startup probe to fail with 503; custom `ConnectionManager` connected correctly but Spring's health indicator used the auto-configured factory
 - CI: switch `lint` and `build` jobs from `PACKAGES_TOKEN` to `GITHUB_TOKEN` in `.github/maven-settings.xml` and `.github/workflows/ci.yml` — resolves 401 when resolving `rabbitmq-client-java` from GitHub Packages; `GITHUB_TOKEN` is automatic and scoped to `packages: read` via workflow permissions
 - Align k8s manifests with data-layer: correct DB_PASSWORD, RABBITMQ_PASSWORD, add SPRING_CLOUD_VAULT_ENABLED=false (Vault unreachable from app cluster), reduce resource requests cpu 200m→100m / memory 512Mi→256Mi for t3.medium headroom

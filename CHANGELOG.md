@@ -4,6 +4,7 @@
 
 ### Added
 - `docs/guides/configuration.md` — full env var reference, actuator endpoints, Spring Cloud Bus config auto-refresh how-to, and three broker-free alternatives (ConfigMap mount, Spring Cloud Kubernetes, Kafka)
+- README: expand Issue Logs to all 4 existing issue docs
 
 ### Fixed
 - CI: bump pinned `build-push-deploy.yml` SHA in `publish` job from `999f8d70` (`trivy-action@0.30.0`, invalid) to `39c3072` (`trivy-action@v0.35.0`) — `Build, Scan & Push` was failing on every main push since the Trivy action version didn't exist

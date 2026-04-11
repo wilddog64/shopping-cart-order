@@ -150,8 +150,10 @@ shopping-cart-order/
 - **[Troubleshooting Guide](docs/troubleshooting/README.md)** — Vault, RabbitMQ, database connectivity issues.
 
 ### Issue Logs
-- **[OWASP NVD API key needed](docs/issues/2026-03-14-owasp-nvd-api-key.md)** — Dependency Check configuration pending `NVD_API_KEY` secret.
+- **[Rate limiting distributed state](docs/issues/2026-03-18-rate-limit-distributed.md)** — Bucket4j in-memory per-pod; Redis integration deferred to v1.1.0.
+- **[Multi-arch workflow pin](docs/issues/2026-03-17-multiarch-workflow-pin.md)** — GitHub Actions cross-arch build pinning notes.
 - **[CI GitHub Packages auth](docs/issues/2026-03-17-ci-github-packages-auth.md)** — Fixed in PR #18: switched to `GITHUB_TOKEN`; `rabbitmq-client-java` repo made public.
+- **[OWASP NVD API key needed](docs/issues/2026-03-14-owasp-nvd-api-key.md)** — Dependency Check configuration pending `NVD_API_KEY` secret.
 
 ---
 

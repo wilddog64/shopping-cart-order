@@ -27,4 +27,4 @@ commonLabels:
 images:
   - name: shopping-cart-order
     newName: ghcr.io/wilddog64/shopping-cart-order
-    newTag: 2026-04-11-rabbit-health
+    newTag: latest

@@ -45,12 +45,11 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
-        <!-- RabbitMQ Client Library (local dependency) -->
-        <!-- TODO: Replace with Maven coordinates once published -->
+        <!-- RabbitMQ Client Library -->
         <dependency>
             <groupId>com.shoppingcart</groupId>
             <artifactId>rabbitmq-client</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>1.0.1</version>
         </dependency>
 
         <!-- Database -->

@@ -1,8 +1,0 @@
----
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: shopping-cart-apps
-  labels:
-    app.kubernetes.io/part-of: shopping-cart
-    istio-injection: enabled

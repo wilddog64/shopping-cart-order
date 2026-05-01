@@ -64,7 +64,7 @@ public class SecurityConfig {
 
             // Allow all requests (authentication handled at API gateway level)
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/actuator/health", "/actuator/info", "/actuator/prometheus").permitAll()
+                .requestMatchers("/actuator/health", "/actuator/health/**", "/actuator/info", "/actuator/prometheus").permitAll()
                 .requestMatchers("/api/**").permitAll()
                 .anyRequest().denyAll());
 

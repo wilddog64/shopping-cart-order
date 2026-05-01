@@ -9,6 +9,7 @@
 - README: update Issue Logs to 5 most recent entries — Copilot PR #25 findings, Copilot PR #24 findings, RabbitMQ connection refused, Rate limiting distributed state, Multi-arch workflow pin
 
 ### Fixed
+- `src/main/java/.../SecurityConfig.java`: add `/actuator/health/**` to `permitAll` requestMatchers — probes hitting `/actuator/health/readiness` and `/actuator/health/liveness` were getting `401 Unauthorized`, keeping pods at `0/1 Ready`
 - CI: bump pinned `build-push-deploy.yml` SHA in `publish` job from `999f8d70` (`trivy-action@0.30.0`, invalid) to `39c3072` (`trivy-action@v0.35.0`) — `Build, Scan & Push` was failing on every main push since the Trivy action version didn't exist
 - `k8s/base/configmap.yaml`: add `SPRING_RABBITMQ_HOST`, `SPRING_RABBITMQ_PORT`, `SPRING_RABBITMQ_VIRTUAL_HOST` — Spring AMQP auto-configured `CachingConnectionFactory` was defaulting to `localhost:5672`, causing `RabbitHealthIndicator` to return DOWN and the startup probe to fail with 503; custom `ConnectionManager` connected correctly but Spring's health indicator used the auto-configured factory
 - CI: switch `lint` and `build` jobs from `PACKAGES_TOKEN` to `GITHUB_TOKEN` in `.github/maven-settings.xml` and `.github/workflows/ci.yml` — resolves 401 when resolving `rabbitmq-client-java` from GitHub Packages; `GITHUB_TOKEN` is automatic and scoped to `packages: read` via workflow permissions

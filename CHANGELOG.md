@@ -9,6 +9,7 @@
 - README: update Issue Logs to 5 most recent entries — Copilot PR #25 findings, Copilot PR #24 findings, RabbitMQ connection refused, Rate limiting distributed state, Multi-arch workflow pin
 
 ### Fixed
+- `k8s/base/configmap.yaml`: OAUTH2_ISSUER_URI and OAUTH2_JWK_SET_URI changed from `keycloak.identity.svc.cluster.local` to `keycloak.shopping-cart.local` to match actual JWT iss claim; allows ubuntu-k3s pods to reach Keycloak via cross-cluster DNS resolution
 - `k8s/base/service.yaml`: set ClusterIP `port` to 8081 to match frontend nginx upstream config at `/api/orders → order-service.shopping-cart-apps.svc.cluster.local:8081`; port was 80, causing kube-proxy to drop requests and produce 504 on every API call
 - `src/main/java/.../SecurityConfig.java`: add `/actuator/health/**` to `permitAll` requestMatchers — probes hitting `/actuator/health/readiness` and `/actuator/health/liveness` were getting `401 Unauthorized`, keeping pods at `0/1 Ready`
 - `k8s/base/namespace.yaml` (deleted), `k8s/base/kustomization.yaml`: remove duplicate `Namespace/shopping-cart-apps` definition — namespace is now owned by the dedicated `shopping-cart-namespace` ArgoCD Application in k3d-manager; resolves `SharedResourceWarning` that kept this app `OutOfSync`

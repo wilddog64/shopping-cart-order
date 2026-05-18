@@ -44,5 +44,5 @@ data:
 
   # OAuth2/OIDC Configuration (Keycloak SSO)
   OAUTH2_ENABLED: "true"
-  OAUTH2_ISSUER_URI: "http://keycloak.identity.svc.cluster.local/realms/shopping-cart"
-  OAUTH2_JWK_SET_URI: "http://keycloak.identity.svc.cluster.local/realms/shopping-cart/protocol/openid-connect/certs"
+  OAUTH2_ISSUER_URI: "http://keycloak.shopping-cart.local/realms/shopping-cart"
+  OAUTH2_JWK_SET_URI: "http://keycloak.shopping-cart.local/realms/shopping-cart/protocol/openid-connect/certs"

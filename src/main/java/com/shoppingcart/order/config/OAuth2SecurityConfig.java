@@ -36,7 +36,7 @@ import java.util.stream.Stream;
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 @ConditionalOnProperty(name = "oauth2.enabled", havingValue = "true")
-@Order(2)
+@Order(1)
 public class OAuth2SecurityConfig {
 
     @Value("${oauth2.resource-server.jwt.issuer-uri:}")

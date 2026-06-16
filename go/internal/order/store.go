@@ -169,7 +169,7 @@ func (s *PostgresStore) Update(ctx context.Context, order *Order) (err error) {
 	}()
 
 	order.UpdateTimestampsOnPersist()
-	if _, err = tx.Exec(ctx, updateOrderSQL,
+	tag, err := tx.Exec(ctx, updateOrderSQL,
 		order.CustomerID,
 		string(order.Status),
 		order.TotalAmount.StringFixed(2),
@@ -189,7 +189,12 @@ func (s *PostgresStore) Update(ctx context.Context, order *Order) (err error) {
 		addressOrNil(order.ShippingAddress, "postalCode"),
 		addressOrNil(order.ShippingAddress, "country"),
 		order.ID,
-	); err != nil {
+	)
+	if err != nil {
+		return err
+	}
+	if tag.RowsAffected() == 0 {
+		err = ErrOrderNotFound
 		return err
 	}
 

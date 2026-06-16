@@ -15,6 +15,7 @@ type Config struct {
 	DBName     string
 	DBUsername string
 	DBPassword string
+	DBSSLMode  string
 
 	RabbitMQHost     string
 	RabbitMQPort     string
@@ -42,7 +43,8 @@ func Load() Config {
 		DBPort:     getEnv("DB_PORT", "5432"),
 		DBName:     getEnv("DB_NAME", "orders"),
 		DBUsername: getEnv("DB_USERNAME", "postgres"),
-		DBPassword: getEnv("DB_PASSWORD", "postgres"),
+		DBPassword: getEnv("DB_PASSWORD", ""),
+		DBSSLMode:  getEnv("DB_SSLMODE", "disable"),
 
 		RabbitMQHost:     getEnv("RABBITMQ_HOST", "localhost"),
 		RabbitMQPort:     getEnv("RABBITMQ_PORT", "5672"),
@@ -69,7 +71,7 @@ func (c Config) DatabaseURI() string {
 		User:   url.UserPassword(c.DBUsername, c.DBPassword),
 		Host:   fmt.Sprintf("%s:%s", c.DBHost, c.DBPort),
 		Path:   "/" + c.DBName,
-	}).String() + "?sslmode=disable"
+	}).String() + "?sslmode=" + c.DBSSLMode
 }
 
 func (c Config) RabbitMQURI() string {

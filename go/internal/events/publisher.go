@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net"
 	"sync"
 	"time"
 
@@ -309,9 +308,7 @@ func (p *RabbitPublisher) ensureChannel(ctx context.Context) (*amqp.Channel, err
 	}
 
 	conn, err := amqp.DialConfig(p.uri, amqp.Config{
-		Dial: func(network, addr string) (net.Conn, error) {
-			return net.DialTimeout(network, addr, 5*time.Second)
-		},
+		Dial: amqp.DefaultDial(5 * time.Second),
 	})
 	if err != nil {
 		return nil, err

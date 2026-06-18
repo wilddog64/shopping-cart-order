@@ -48,3 +48,50 @@ jobs:
       - name: Docker build
         working-directory: .
         run: docker build -f go/Dockerfile go
+
+  integration:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: go
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: orders
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d orders"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+      rabbitmq:
+        image: rabbitmq:3.13
+        env:
+          RABBITMQ_DEFAULT_USER: app
+          RABBITMQ_DEFAULT_PASS: app
+        ports:
+          - 5672:5672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 15
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go/go.mod
+          cache: true
+
+      - name: Integration tests
+        run: go test -tags integration -count=1 ./internal/order/... ./internal/events/...
+        env:
+          TEST_POSTGRES_DSN: postgres://postgres:postgres@localhost:5432/orders?sslmode=disable
+          TEST_RABBITMQ_URI: amqp://app:app@localhost:5672/

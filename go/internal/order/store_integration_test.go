@@ -5,10 +5,12 @@ package order
 import (
 	"context"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/shopspring/decimal"
 )
 
@@ -20,6 +22,25 @@ func TestPostgresStoreRoundTrip(t *testing.T) {
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
+
+	migrationPool, err := pgxpool.New(ctx, dsn)
+	if err != nil {
+		t.Fatalf("connect postgres: %v", err)
+	}
+	for _, rel := range []string{
+		filepath.Join("..", "..", "..", "src", "main", "resources", "db", "migration", "V1__init_schema.sql"),
+	} {
+		sqlBytes, readErr := os.ReadFile(rel)
+		if readErr != nil {
+			migrationPool.Close()
+			t.Fatalf("read migration %s: %v", rel, readErr)
+		}
+		if _, execErr := migrationPool.Exec(ctx, string(sqlBytes)); execErr != nil {
+			migrationPool.Close()
+			t.Fatalf("apply migration %s: %v", rel, execErr)
+		}
+	}
+	migrationPool.Close()
 
 	store, err := NewPostgresStore(ctx, dsn)
 	if err != nil {

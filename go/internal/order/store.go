@@ -138,23 +138,62 @@ func (s *PostgresStore) ListByCustomer(ctx context.Context, customerID string) (
 	defer rows.Close()
 
 	orders := make([]*Order, 0)
+	orderIDs := make([]uuid.UUID, 0)
 	for rows.Next() {
 		order, err := scanOrderRow(rows)
 		if err != nil {
 			return nil, err
 		}
-		items, err := s.listItems(ctx, order.ID)
-		if err != nil {
-			return nil, err
-		}
-		order.Items = items
-		order.RecalculateTotals()
 		orders = append(orders, order)
+		orderIDs = append(orderIDs, order.ID)
 	}
 	if err := rows.Err(); err != nil {
 		return nil, err
 	}
+
+	itemsByOrder, err := s.listItemsByOrderIDs(ctx, orderIDs)
+	if err != nil {
+		return nil, err
+	}
+	for _, order := range orders {
+		order.Items = itemsByOrder[order.ID]
+		order.RecalculateTotals()
+	}
 	return orders, nil
+}
+
+func (s *PostgresStore) listItemsByOrderIDs(ctx context.Context, orderIDs []uuid.UUID) (map[uuid.UUID][]OrderItem, error) {
+	itemsByOrder := make(map[uuid.UUID][]OrderItem)
+	if len(orderIDs) == 0 {
+		return itemsByOrder, nil
+	}
+	ids := make([]string, len(orderIDs))
+	for i, id := range orderIDs {
+		ids[i] = id.String()
+	}
+	rows, err := s.pool.Query(ctx, listItemsByOrderIDsSQL, ids)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var item OrderItem
+		var unitPrice string
+		if err := rows.Scan(&item.ID, &item.OrderID, &item.ProductID, &item.ProductName, &item.Quantity, &unitPrice); err != nil {
+			return nil, err
+		}
+		item.UnitPrice, err = decimal.NewFromString(unitPrice)
+		if err != nil {
+			return nil, err
+		}
+		item.RecalculateSubtotal()
+		itemsByOrder[item.OrderID] = append(itemsByOrder[item.OrderID], item)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return itemsByOrder, nil
 }
 
 func (s *PostgresStore) Update(ctx context.Context, order *Order) (err error) {
@@ -387,6 +426,13 @@ const listItemsSQL = `
 SELECT id, order_id, product_id, product_name, quantity, unit_price
 FROM order_items
 WHERE order_id = $1
+ORDER BY id ASC
+`
+
+const listItemsByOrderIDsSQL = `
+SELECT id, order_id, product_id, product_name, quantity, unit_price
+FROM order_items
+WHERE order_id = ANY($1::uuid[])
 ORDER BY id ASC
 `
 

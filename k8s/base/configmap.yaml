@@ -17,6 +17,9 @@ data:
   DB_HOST: "postgresql-orders.shopping-cart-data.svc.cluster.local"
   DB_PORT: "5432"
   DB_NAME: "orders"
+  # In-cluster Postgres is non-TLS (stock image); transport is secured by Istio mTLS.
+  # Production overrides this to "require".
+  DB_SSLMODE: "disable"
 
   # RabbitMQ connection
   RABBITMQ_HOST: "rabbitmq.shopping-cart-data.svc.cluster.local"

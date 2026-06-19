@@ -4,8 +4,6 @@
 
 ### Added
 - Go rewrite PR1 for `shopping-cart-order`: add the functional Go core under `go/` (HTTP, Postgres, RabbitMQ events, status machine, actuator endpoints, rate limiting, and side-by-side Java/Go CI)
-
-### Added
 - `docs/guides/configuration.md` — full env var reference, actuator endpoints, Spring Cloud Bus config auto-refresh how-to, and three broker-free alternatives (ConfigMap mount, Spring Cloud Kubernetes, Kafka)
 - `docs/issues/2026-03-25-rabbitmq-connection-refused.md` — root cause analysis for RabbitMQ CrashLoopBackOff (fixed in shopping-cart-infra PR #22)
 - `docs/issues/2026-04-11-copilot-pr25-review-findings.md` — stale status date in activeContext.md, inaccurate CHANGELOG entry for README Issue Logs

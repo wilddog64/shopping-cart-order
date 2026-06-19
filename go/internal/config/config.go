@@ -79,16 +79,18 @@ func (c Config) RabbitMQURI() string {
 	if c.RabbitMQUseTLS {
 		scheme = "amqps"
 	}
-	escapedVHost := url.PathEscape(c.RabbitMQVHost)
-	if escapedVHost == "" {
-		escapedVHost = "%2F"
+	vhost := c.RabbitMQVHost
+	if vhost == "" {
+		vhost = "/"
 	}
-	return (&url.URL{
+	u := &url.URL{
 		Scheme: scheme,
 		User:   url.UserPassword(c.RabbitMQUsername, c.RabbitMQPassword),
 		Host:   fmt.Sprintf("%s:%s", c.RabbitMQHost, c.RabbitMQPort),
-		Path:   "/" + escapedVHost,
-	}).String()
+	}
+	u.Path = "/" + vhost
+	u.RawPath = "/" + url.PathEscape(vhost)
+	return u.String()
 }
 
 func getEnv(key, defaultValue string) string {

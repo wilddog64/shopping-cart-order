@@ -150,11 +150,11 @@ shopping-cart-order/
 - **[Troubleshooting Guide](docs/troubleshooting/README.md)** — Vault, RabbitMQ, database connectivity issues.
 
 ### Issue Logs
-- **[Copilot PR #25 findings](docs/issues/2026-04-11-copilot-pr25-review-findings.md)** — Stale status date in activeContext.md, inaccurate CHANGELOG entry for README Issue Logs.
-- **[Copilot PR #24 findings](docs/issues/2026-04-11-copilot-pr24-review-findings.md)** — Stale kustomization tag, stale CHANGELOG entry, dangling word fixed.
-- **[RabbitMQ connection refused](docs/issues/2026-03-25-rabbitmq-connection-refused.md)** — Fixed in shopping-cart-infra PR #22: `loopback_users.guest = false` + data-layer ArgoCD app + reduced resource requests.
-- **[Rate limiting distributed state](docs/issues/2026-03-18-rate-limit-distributed.md)** — Bucket4j in-memory per-pod; Redis integration deferred to v1.1.0.
-- **[Multi-arch workflow pin](docs/issues/2026-03-17-multiarch-workflow-pin.md)** — GitHub Actions cross-arch build pinning notes.
+- **[Copilot Review Findings — PR #33 (Go rewrite PR1)](docs/issues/2026-06-16-copilot-pr33-review-findings.md)** — Go rewrite PR1: GitGuardian DB_PASSWORD default, sslmode env, canonical AMQP dialer, ErrOrderNotFound; d/e deferred to PR2 (JWT).
+- **[Issue: `order-service-secrets` is still placeholder-managed in `shopping-cart-order` while the live cluster secret is ESO-owned](docs/issues/2026-05-26-order-service-secret-eso-ownership-drift.md)** — live secret ownership drift notes.
+- **[Copilot PR #25 Review Findings](docs/issues/2026-04-11-copilot-pr25-review-findings.md)** — Stale status date in activeContext.md, inaccurate CHANGELOG entry for README Issue Logs.
+- **[Copilot PR #24 Review Findings](docs/issues/2026-04-11-copilot-pr24-review-findings.md)** — Stale kustomization tag, stale CHANGELOG entry, dangling word fixed.
+- **[Issue: RabbitMQ Connection Refused — order-service CrashLoopBackOff](docs/issues/2026-03-25-rabbitmq-connection-refused.md)** — Fixed in shopping-cart-infra PR #22: `loopback_users.guest = false` + data-layer ArgoCD app + reduced resource requests.
 
 ---
 

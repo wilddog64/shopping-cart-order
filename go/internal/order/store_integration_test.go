@@ -28,7 +28,7 @@ func TestPostgresStoreRoundTrip(t *testing.T) {
 		t.Fatalf("connect postgres: %v", err)
 	}
 	for _, rel := range []string{
-		filepath.Join("..", "..", "..", "src", "main", "resources", "db", "migration", "V1__init_schema.sql"),
+		filepath.Join("testdata", "V1__init_schema.sql"),
 	} {
 		sqlBytes, readErr := os.ReadFile(rel)
 		if readErr != nil {

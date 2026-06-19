@@ -49,8 +49,8 @@ func Load() Config {
 		RabbitMQHost:     getEnv("RABBITMQ_HOST", "localhost"),
 		RabbitMQPort:     getEnv("RABBITMQ_PORT", "5672"),
 		RabbitMQVHost:    getEnv("RABBITMQ_VHOST", "/"),
-		RabbitMQUsername: getEnv("RABBITMQ_USERNAME", "guest"),
-		RabbitMQPassword: getEnv("RABBITMQ_PASSWORD", "guest"),
+		RabbitMQUsername: getEnv("RABBITMQ_USERNAME", ""),
+		RabbitMQPassword: getEnv("RABBITMQ_PASSWORD", ""),
 		RabbitMQUseTLS:   getEnvAsBool("RABBITMQ_USE_TLS", false),
 
 		RateLimitPerMinute: getEnvAsInt("RATE_LIMIT_PER_MINUTE", 100),

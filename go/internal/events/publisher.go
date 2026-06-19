@@ -253,6 +253,7 @@ type RabbitPublisher struct {
 	uri      string
 	logger   *zap.Logger
 	mu       sync.Mutex
+	pubMu    sync.Mutex
 	conn     *amqp.Connection
 	channel  *amqp.Channel
 	declared bool
@@ -273,13 +274,17 @@ func (p *RabbitPublisher) Publish(ctx context.Context, envelope Envelope) error 
 		return err
 	}
 
-	if err := channel.PublishWithContext(ctx, ExchangeName, envelope.Type, false, false, amqp.Publishing{
+	p.pubMu.Lock()
+	pubErr := channel.PublishWithContext(ctx, ExchangeName, envelope.Type, false, false, amqp.Publishing{
 		ContentType:  "application/json",
 		DeliveryMode: amqp.Persistent,
 		Body:         payload,
-	}); err != nil {
+	})
+	p.pubMu.Unlock()
+
+	if pubErr != nil {
 		_ = p.reset()
-		return fmt.Errorf("publish %s: %w", envelope.Type, err)
+		return fmt.Errorf("publish %s: %w", envelope.Type, pubErr)
 	}
 
 	return nil

@@ -27,6 +27,7 @@
 - Bump `rabbitmq-client` dependency from `1.0.0-SNAPSHOT` to `1.0.1`; remove the
   `RabbitHealthConfig` workaround — NPE in `ConnectionManager.getStats()` is fixed
   at source in `1.0.1`, eliminating the `CrashLoopBackOff` on pod startup
+- `k8s/base/deployment.yaml`: set rolling update to `maxSurge: 0` / `maxUnavailable: 1` (recreate-style) so rollouts complete on the single-node hostinger cluster instead of wedging with an unschedulable surge pod
 
 ## [0.1.0] - 2026-03-14
 

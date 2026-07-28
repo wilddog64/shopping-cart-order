@@ -3,6 +3,7 @@
 ## [Unreleased]
 
 ### Added
+- `.github/dependabot.yml`: Dependabot scheduled version updates for Maven dependencies, Docker base images, and GitHub Actions (weekly; minor/patch grouped, majors separate). Repository-level Dependabot security updates (immediate advisory-triggered PRs) are enabled separately as a repo setting — together they close the first-mile CVE gap so a flagged app dependency opens an update PR that CI builds into a clean image
 - Go rewrite PR1 for `shopping-cart-order`: add the functional Go core under `go/` (HTTP, Postgres, RabbitMQ events, status machine, actuator endpoints, rate limiting, and side-by-side Java/Go CI)
 - `docs/guides/configuration.md` — full env var reference, actuator endpoints, Spring Cloud Bus config auto-refresh how-to, and three broker-free alternatives (ConfigMap mount, Spring Cloud Kubernetes, Kafka)
 - `docs/issues/2026-03-25-rabbitmq-connection-refused.md` — root cause analysis for RabbitMQ CrashLoopBackOff (fixed in shopping-cart-infra PR #22)

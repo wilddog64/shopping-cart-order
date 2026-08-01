@@ -34,6 +34,10 @@ type Config struct {
 	OAuth2ClientID  string
 
 	VaultEnabled bool
+
+	BasketServiceURL  string
+	PaymentServiceURL string
+	PaymentGateway    string
 }
 
 func Load() Config {
@@ -64,6 +68,10 @@ func Load() Config {
 		OAuth2ClientID:  getEnv("OAUTH2_CLIENT_ID", "order-service"),
 
 		VaultEnabled: getEnvAsBool("VAULT_ENABLED", false),
+
+		BasketServiceURL:  getEnv("BASKET_URL", "http://localhost:8083"),
+		PaymentServiceURL: getEnv("PAYMENT_URL", "http://localhost:8084"),
+		PaymentGateway:    getEnv("PAYMENT_GATEWAY", "stripe"),
 	}
 }
 

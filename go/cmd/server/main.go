@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"github.com/wilddog64/shopping-cart-order/internal/auth"
+	"github.com/wilddog64/shopping-cart-order/internal/checkout"
 	"github.com/wilddog64/shopping-cart-order/internal/config"
 	"github.com/wilddog64/shopping-cart-order/internal/events"
 	"github.com/wilddog64/shopping-cart-order/internal/health"
@@ -39,6 +40,7 @@ func main() {
 	publisher := events.NewRabbitPublisher(cfg.RabbitMQURI(), logger)
 	orderService := order.NewService(store, publisher, logger)
 	orderHandler := order.NewHandler(orderService, logger)
+	checkoutHandler := checkout.NewHandler(orderService, checkout.NewBasketClient(cfg.BasketServiceURL), checkout.NewPaymentClient(cfg.PaymentServiceURL), cfg.PaymentGateway, logger)
 	healthHandler := health.NewHandler(store, version)
 	rateLimiter := httpx.NewRateLimiter(cfg.RateLimitPerSecond, cfg.RateLimitBurst)
 
@@ -68,6 +70,7 @@ func main() {
 	api.Use(authMiddleware)
 	{
 		api.POST("", orderHandler.CreateOrder)
+		api.POST("/checkout", checkoutHandler.Checkout)
 		api.GET("", orderHandler.ListOrdersByCustomer)
 		api.GET("/:orderId", orderHandler.GetOrder)
 		api.PATCH("/:orderId/status", orderHandler.UpdateOrderStatus)

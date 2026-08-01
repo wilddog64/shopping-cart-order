@@ -1,5 +1,6 @@
 # Progress: Order Service
 
+- [x] **Phase C Stripe checkout orchestrator COMPLETE `3710b92` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Added basket/payment clients, payment-aware checkout handler, PAID-gated cart clearing, and happy/declined/empty-cart tests; all specified Go gates passed.
 - [x] **Phase A Stripe checkout auth COMPLETE `ae09af2` on `origin/feat/stripe-checkout-auth` (2026-08-01).** Added the copied Keycloak validator, JWT/mock middleware, `OAUTH2_CLIENT_ID`, and focused auth tests; formatting, vet, build, and test gates passed.
 
 ## What's Built

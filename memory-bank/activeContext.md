@@ -2,6 +2,7 @@
 
 ## Latest completed task
 
+- **Phase C Stripe checkout orchestrator COMPLETE `3710b92` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Added server-side basket/order/payment orchestration with PAID-gated cart clearing and retryable payment failures; Go gates passed.
 - **Phase A Stripe checkout auth COMPLETE `ae09af2` on `origin/feat/stripe-checkout-auth` (2026-08-01).** Added Keycloak JWT validation and mock-auth fallback to `/api/orders`; Go gates passed (`gofmt`, `go vet ./...`, `go build ./...`, `go test ./...`).
 
 ## Current Status (2026-04-11)

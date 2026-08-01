@@ -35,13 +35,16 @@ type BasketClient struct {
 func NewBasketClient(baseURL string) *BasketClient {
 	return &BasketClient{baseURL: baseURL, http: &http.Client{Timeout: 10 * time.Second}}
 }
-func (bc *BasketClient) GetCart(ctx context.Context, authHeader string) (*Cart, error) {
+func (bc *BasketClient) GetCart(ctx context.Context, authHeader, customerID string) (*Cart, error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, bc.baseURL+"/api/v1/cart", nil)
 	if err != nil {
 		return nil, err
 	}
 	if authHeader != "" {
 		req.Header.Set("Authorization", authHeader)
+	}
+	if customerID != "" {
+		req.Header.Set("X-User-ID", customerID)
 	}
 	resp, err := bc.http.Do(req)
 	if err != nil {
@@ -57,13 +60,16 @@ func (bc *BasketClient) GetCart(ctx context.Context, authHeader string) (*Cart, 
 	}
 	return &env.Data, nil
 }
-func (bc *BasketClient) ClearCart(ctx context.Context, authHeader string) error {
+func (bc *BasketClient) ClearCart(ctx context.Context, authHeader, customerID string) error {
 	req, err := http.NewRequestWithContext(ctx, http.MethodDelete, bc.baseURL+"/api/v1/cart", nil)
 	if err != nil {
 		return err
 	}
 	if authHeader != "" {
 		req.Header.Set("Authorization", authHeader)
+	}
+	if customerID != "" {
+		req.Header.Set("X-User-ID", customerID)
 	}
 	resp, err := bc.http.Do(req)
 	if err != nil {
@@ -114,6 +120,9 @@ func (pc *PaymentClient) ProcessPayment(ctx context.Context, authHeader string, 
 	req.Header.Set("X-Idempotency-Key", pr.OrderID)
 	if authHeader != "" {
 		req.Header.Set("Authorization", authHeader)
+	}
+	if pr.CustomerID != "" {
+		req.Header.Set("X-User-ID", pr.CustomerID)
 	}
 	resp, err := pc.http.Do(req)
 	if err != nil {

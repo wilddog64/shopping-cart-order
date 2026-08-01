@@ -17,8 +17,8 @@ type OrderService interface {
 	UpdateOrderStatus(context.Context, uuid.UUID, order.UpdateOrderStatusRequest, string) (*order.Order, error)
 }
 type Basket interface {
-	GetCart(context.Context, string) (*Cart, error)
-	ClearCart(context.Context, string) error
+	GetCart(context.Context, string, string) (*Cart, error)
+	ClearCart(context.Context, string, string) error
 }
 type Payment interface {
 	ProcessPayment(context.Context, string, PaymentRequest) (PaymentOutcome, error)
@@ -69,7 +69,7 @@ func (h *Handler) Checkout(c *gin.Context) {
 	ctx := c.Request.Context()
 	authHeader := c.GetHeader("Authorization")
 	correlationID := httpx.GetCorrelationID(c)
-	cart, err := h.basket.GetCart(ctx, authHeader)
+	cart, err := h.basket.GetCart(ctx, authHeader, customerID)
 	if err != nil {
 		h.logger.Error("checkout: failed to read cart", zap.String("customerId", customerID), zap.Error(err))
 		writeError(c, http.StatusBadGateway, "BASKET_UNAVAILABLE", "could not read cart")
@@ -106,7 +106,7 @@ func (h *Handler) Checkout(c *gin.Context) {
 		writeError(c, http.StatusInternalServerError, "ORDER_UPDATE_FAILED", "payment captured but order update failed; contact support")
 		return
 	}
-	if err := h.basket.ClearCart(ctx, authHeader); err != nil {
+	if err := h.basket.ClearCart(ctx, authHeader, customerID); err != nil {
 		h.logger.Warn("checkout: order PAID but cart clear failed", zap.String("orderId", entity.ID.String()), zap.Error(err))
 	}
 	c.JSON(http.StatusOK, checkoutResponse{OrderID: entity.ID.String(), Amount: entity.TotalAmount.StringFixed(2), Currency: entity.Currency, PaymentStatus: "PAID"})

@@ -37,8 +37,8 @@ type fakeBasket struct {
 	cleared bool
 }
 
-func (f *fakeBasket) GetCart(context.Context, string) (*Cart, error) { return f.cart, nil }
-func (f *fakeBasket) ClearCart(context.Context, string) error        { f.cleared = true; return nil }
+func (f *fakeBasket) GetCart(context.Context, string, string) (*Cart, error) { return f.cart, nil }
+func (f *fakeBasket) ClearCart(context.Context, string, string) error        { f.cleared = true; return nil }
 
 type fakePayment struct {
 	paid bool

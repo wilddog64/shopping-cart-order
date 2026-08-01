@@ -40,9 +40,13 @@ type fakeBasket struct {
 func (f *fakeBasket) GetCart(context.Context, string) (*Cart, error) { return f.cart, nil }
 func (f *fakeBasket) ClearCart(context.Context, string) error        { f.cleared = true; return nil }
 
-type fakePayment struct{ paid bool }
+type fakePayment struct {
+	paid bool
+	got  PaymentRequest
+}
 
-func (f *fakePayment) ProcessPayment(context.Context, string, PaymentRequest) (PaymentOutcome, error) {
+func (f *fakePayment) ProcessPayment(_ context.Context, _ string, req PaymentRequest) (PaymentOutcome, error) {
+	f.got = req
 	if f.paid {
 		return PaymentOutcome{Paid: true, Status: "COMPLETED"}, nil
 	}
@@ -66,6 +70,18 @@ func TestCheckoutHappyPath(t *testing.T) {
 	}
 	if !strings.Contains(w.Body.String(), `"paymentStatus":"PAID"`) {
 		t.Fatal(w.Body.String())
+	}
+	if !strings.Contains(w.Body.String(), `"amount":"21.00"`) {
+		t.Fatalf("response amount not server-computed 21.00: %s", w.Body.String())
+	}
+	if fp.got.Amount.StringFixed(2) != "21.00" {
+		t.Fatalf("payment amount not 21.00, got %q", fp.got.Amount.StringFixed(2))
+	}
+	if fp.got.Gateway != "stripe" {
+		t.Fatalf("payment gateway not stripe, got %q", fp.got.Gateway)
+	}
+	if fp.got.PaymentMethodID != "pm_card_visa" {
+		t.Fatalf("payment method not pm_card_visa, got %q", fp.got.PaymentMethodID)
 	}
 }
 func TestCheckoutPaymentDeclined(t *testing.T) {

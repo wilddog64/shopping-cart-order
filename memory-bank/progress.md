@@ -1,5 +1,6 @@
 # Progress: Order Service
 
+- [x] **Checkout identity propagation COMPLETE `eb1826e` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Forwarded `X-User-ID` to basket and payment clients without changing the payment interface or hardening assertions; formatting, vet, build, and checkout tests passed.
 - [x] **Checkout test hardening COMPLETE `88e5be6` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Captured the payment request and asserted server-side amount `21.00`, gateway `stripe`, and PaymentMethod ID; formatting, vet, build, and checkout tests passed.
 - [x] **Phase C Stripe checkout orchestrator COMPLETE `3710b92` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Added basket/payment clients, payment-aware checkout handler, PAID-gated cart clearing, and happy/declined/empty-cart tests; all specified Go gates passed.
 - [x] **Phase A Stripe checkout auth COMPLETE `ae09af2` on `origin/feat/stripe-checkout-auth` (2026-08-01).** Added the copied Keycloak validator, JWT/mock middleware, `OAUTH2_CLIENT_ID`, and focused auth tests; formatting, vet, build, and test gates passed.

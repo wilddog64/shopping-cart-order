@@ -30,6 +30,8 @@ func CorrelationID() gin.HandlerFunc {
 	}
 }
 
+func GetCorrelationID(c *gin.Context) string { return c.GetString(string(correlationIDKey)) }
+
 func SecurityHeaders() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Header("X-XSS-Protection", "1; mode=block")

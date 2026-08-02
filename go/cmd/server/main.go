@@ -59,7 +59,7 @@ func main() {
 
 	var authMiddleware gin.HandlerFunc
 	if cfg.OAuth2Enabled {
-		validator := auth.NewJWTValidator(cfg.OAuth2IssuerURI, cfg.OAuth2ClientID, logger)
+		validator := auth.NewJWTValidator(cfg.OAuth2IssuerURI, cfg.OAuth2ClientID, cfg.OAuth2ExpectedAudience, logger)
 		authMiddleware = httpx.AuthMiddleware(validator, logger)
 	} else {
 		authMiddleware = httpx.MockAuthMiddleware()

@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Security
+- Scope order reads to the authenticated customer and enforce token audience (Stripe checkout pre-enablement hardening; Copilot findings #2, #4): `GetOrder` now returns `404 NOT_FOUND` when the requested order's `CustomerID` does not match the JWT subject (fixes an IDOR — any authenticated caller could read any order by id), and `ListOrdersByCustomer` derives the customer from the authenticated subject instead of trusting the client-supplied `customerId` query parameter. `JWTValidator` gains configurable audience/authorized-party enforcement via a new `OAUTH2_EXPECTED_AUDIENCE` (default empty = enforcement off with a startup warning, so it lands without breaking the current flow; switched on with a verified value at the enablement flip). Adds two negative access-control tests. Spec: `docs/bugs/2026-08-02-stripe-checkout-order-access-control-hardening.md` (k3d-manager).
+
 ### Added
 - Keycloak JWT validation and authentication middleware for the order service (Stripe checkout Phase A): validates Bearer tokens against the Keycloak realm and gates the protected order endpoints, laying the auth foundation the checkout orchestrator (Phase C) builds on. Spec: `docs/plans/` Phase A order service Keycloak JWT auth.
 - Payment-aware checkout orchestrator in the order service (Stripe checkout Phase C): orchestrates basket → order → payment with server-side amount authority, an idempotency key derived from the order id, and cart clearing only after the order reaches PAID. Forwards `X-User-ID` to the basket and payment services for mock-auth parity, and includes test hardening asserting the server-computed amount and configured gateway reach the payment request. Depends on Phase A auth. Specs: `docs/plans/` Phase C order checkout orchestrator (+ test-hardening and identity-propagation fixes).
@@ -14,6 +17,7 @@
 - README: update Issue Logs to 5 most recent entries — Copilot PR #25 findings, Copilot PR #24 findings, RabbitMQ connection refused, Rate limiting distributed state, Multi-arch workflow pin
 
 ### Fixed
+- `go/Dockerfile`: bump builder base image from `golang:1.21-alpine` to `golang:1.25-alpine` to match `go.mod` (`go 1.25.0`) — under `GOTOOLCHAIN=local` the 1.21 toolchain failed `go mod download` with `go.mod requires go >= 1.25.0`, breaking the Go CI Docker-build step on main (and every open Go PR)
 - `src/main/java/.../SecurityConfig.java`: add dedicated `@Order(0)` SecurityFilterChain for `/actuator/**` to prevent Spring Security 6.2.0 ExceptionTranslationFilter NPE on liveness/readiness probes (root cause of CrashLoopBackOff)
 - `pom.xml`: add Lombok annotation processor to `maven-compiler-plugin` annotationProcessorPaths so `@Slf4j` fields compile correctly (was missing in inherited parent POM)
 - `.githooks/pre-push`: add main-guard hook to prevent accidental direct pushes to main (activation: `git config core.hooksPath .githooks`)

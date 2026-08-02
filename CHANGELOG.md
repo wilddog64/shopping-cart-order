@@ -2,6 +2,9 @@
 
 ## [Unreleased]
 
+### Security
+- Scope order reads to the authenticated customer and enforce token audience (Stripe checkout pre-enablement hardening; Copilot findings #2, #4): `GetOrder` now returns `404 NOT_FOUND` when the requested order's `CustomerID` does not match the JWT subject (fixes an IDOR — any authenticated caller could read any order by id), and `ListOrdersByCustomer` derives the customer from the authenticated subject instead of trusting the client-supplied `customerId` query parameter. `JWTValidator` gains configurable audience/authorized-party enforcement via a new `OAUTH2_EXPECTED_AUDIENCE` (default empty = enforcement off with a startup warning, so it lands without breaking the current flow; switched on with a verified value at the enablement flip). Adds two negative access-control tests. Spec: `docs/bugs/2026-08-02-stripe-checkout-order-access-control-hardening.md` (k3d-manager).
+
 ### Added
 - Keycloak JWT validation and authentication middleware for the order service (Stripe checkout Phase A): validates Bearer tokens against the Keycloak realm and gates the protected order endpoints, laying the auth foundation the checkout orchestrator (Phase C) builds on. Spec: `docs/plans/` Phase A order service Keycloak JWT auth.
 - Payment-aware checkout orchestrator in the order service (Stripe checkout Phase C): orchestrates basket → order → payment with server-side amount authority, an idempotency key derived from the order id, and cart clearing only after the order reaches PAID. Forwards `X-User-ID` to the basket and payment services for mock-auth parity, and includes test hardening asserting the server-computed amount and configured gateway reach the payment request. Depends on Phase A auth. Specs: `docs/plans/` Phase C order checkout orchestrator (+ test-hardening and identity-propagation fixes).

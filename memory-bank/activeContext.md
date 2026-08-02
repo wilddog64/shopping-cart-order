@@ -2,6 +2,8 @@
 
 ## Latest completed task
 
+- **Order access-control hardening COMPLETE** — fix commit `42dec80` on `fix/order-access-control-hardening` scopes order reads to the authenticated customer and adds configurable audience/azp enforcement (`OAUTH2_EXPECTED_AUDIENCE`, default empty). Production and negative access-control tests pass; pushed to origin.
+
 - **Copilot hardening COMPLETE** — auth `3101809` rejects empty JWT subjects; orchestrator `48cf402` threads payment IDs into `order.paid` and rejects basket `success:false`. Both functional commits are pushed to origin; Go gates passed with a writable cache.
 
 - **Checkout identity propagation COMPLETE `eb1826e` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Basket and payment calls now forward `X-User-ID` alongside Authorization for mock-auth parity; all checkout gates passed.

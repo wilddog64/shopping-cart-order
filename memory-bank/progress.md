@@ -1,5 +1,7 @@
 # Progress: Order Service
 
+- [x] **Order access-control hardening** — `42dec80` adds customer ownership checks, ignores client-supplied list customer IDs, and conditionally validates JWT audience/azp. `gofmt`, build, vet, and uncached `go test ./...` passed; fix branch pushed.
+
 - [x] **Copilot hardening** — `3101809` (auth empty-subject rejection) and `48cf402` (payment ID threading plus basket envelope validation) pushed to their respective branches; formatting, build, vet, and specified uncached tests passed.
 
 - [x] **Checkout identity propagation COMPLETE `eb1826e` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Forwarded `X-User-ID` to basket and payment clients without changing the payment interface or hardening assertions; formatting, vet, build, and checkout tests passed.

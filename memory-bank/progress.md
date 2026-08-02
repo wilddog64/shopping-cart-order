@@ -1,5 +1,7 @@
 # Progress: Order Service
 
+- [x] **Copilot hardening** — `3101809` (auth empty-subject rejection) and `48cf402` (payment ID threading plus basket envelope validation) pushed to their respective branches; formatting, build, vet, and specified uncached tests passed.
+
 - [x] **Checkout identity propagation COMPLETE `eb1826e` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Forwarded `X-User-ID` to basket and payment clients without changing the payment interface or hardening assertions; formatting, vet, build, and checkout tests passed.
 - [x] **Checkout test hardening COMPLETE `88e5be6` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Captured the payment request and asserted server-side amount `21.00`, gateway `stripe`, and PaymentMethod ID; formatting, vet, build, and checkout tests passed.
 - [x] **Phase C Stripe checkout orchestrator COMPLETE `3710b92` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Added basket/payment clients, payment-aware checkout handler, PAID-gated cart clearing, and happy/declined/empty-cart tests; all specified Go gates passed.

@@ -31,6 +31,7 @@ type Config struct {
 	OAuth2Enabled   bool
 	OAuth2IssuerURI string
 	OAuth2JWKSetURI string
+	OAuth2ClientID  string
 
 	VaultEnabled bool
 }
@@ -60,6 +61,7 @@ func Load() Config {
 		OAuth2Enabled:   getEnvAsBool("OAUTH2_ENABLED", false),
 		OAuth2IssuerURI: getEnv("OAUTH2_ISSUER_URI", ""),
 		OAuth2JWKSetURI: getEnv("OAUTH2_JWK_SET_URI", ""),
+		OAuth2ClientID:  getEnv("OAUTH2_CLIENT_ID", "order-service"),
 
 		VaultEnabled: getEnvAsBool("VAULT_ENABLED", false),
 	}

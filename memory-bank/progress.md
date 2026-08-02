@@ -1,5 +1,7 @@
 # Progress: Order Service
 
+- [x] **Phase A Stripe checkout auth COMPLETE `ae09af2` on `origin/feat/stripe-checkout-auth` (2026-08-01).** Added the copied Keycloak validator, JWT/mock middleware, `OAUTH2_CLIENT_ID`, and focused auth tests; formatting, vet, build, and test gates passed.
+
 ## What's Built
 
 ### Core Application

@@ -179,7 +179,12 @@ func (h *Handler) GetOrder(c *gin.Context) {
 		handleServiceError(c, err)
 		return
 	}
-	if orderEntity.CustomerID != httpx.GetCustomerID(c) {
+	customerID := strings.TrimSpace(httpx.GetCustomerID(c))
+	if customerID == "" {
+		writeError(c, http.StatusUnauthorized, "UNAUTHORIZED", "authenticated customer required")
+		return
+	}
+	if orderEntity.CustomerID != customerID {
 		writeError(c, http.StatusNotFound, "NOT_FOUND", "order not found")
 		return
 	}

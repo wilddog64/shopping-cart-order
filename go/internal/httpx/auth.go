@@ -33,6 +33,11 @@ func AuthMiddleware(validator *auth.JWTValidator, logger *zap.Logger) gin.Handle
 			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"code": "UNAUTHORIZED", "message": "Invalid or expired token"})
 			return
 		}
+		if strings.TrimSpace(claims.Subject) == "" {
+			logger.Warn("token has empty subject", zap.String("ip", clientIP(c.Request)))
+			c.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{"code": "UNAUTHORIZED", "message": "Invalid token: missing subject"})
+			return
+		}
 		SetCustomerID(c, claims.Subject)
 		c.Set("claims", claims)
 		c.Set("roles", claims.Roles)

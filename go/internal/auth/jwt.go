@@ -26,6 +26,8 @@ var (
 	ErrInvalidIssuer = errors.New("invalid issuer")
 	// ErrJWKSFetch is returned when JWKS cannot be fetched
 	ErrJWKSFetch = errors.New("failed to fetch JWKS")
+	// ErrInvalidAudience is returned when the token audience/azp doesn't match the expected value
+	ErrInvalidAudience = errors.New("invalid audience")
 )
 
 // Claims represents the JWT claims
@@ -43,25 +45,30 @@ type Claims struct {
 
 // JWTValidator validates JWT tokens using Keycloak JWKS
 type JWTValidator struct {
-	issuerURI  string
-	clientID   string
-	jwksURL    string
-	keys       map[string]*rsa.PublicKey
-	keysMutex  sync.RWMutex
-	httpClient *http.Client
-	logger     *zap.Logger
+	issuerURI        string
+	clientID         string
+	expectedAudience string
+	jwksURL          string
+	keys             map[string]*rsa.PublicKey
+	keysMutex        sync.RWMutex
+	httpClient       *http.Client
+	logger           *zap.Logger
 }
 
 // NewJWTValidator creates a new JWT validator
-func NewJWTValidator(issuerURI, clientID string, logger *zap.Logger) *JWTValidator {
+func NewJWTValidator(issuerURI, clientID, expectedAudience string, logger *zap.Logger) *JWTValidator {
 	// Normalize issuer URI (remove trailing slash)
 	issuerURI = strings.TrimSuffix(issuerURI, "/")
+	if expectedAudience == "" {
+		logger.Warn("OAUTH2_EXPECTED_AUDIENCE is empty; token audience/azp will not be enforced")
+	}
 
 	return &JWTValidator{
-		issuerURI: issuerURI,
-		clientID:  clientID,
-		jwksURL:   issuerURI + "/protocol/openid-connect/certs",
-		keys:      make(map[string]*rsa.PublicKey),
+		issuerURI:        issuerURI,
+		clientID:         clientID,
+		expectedAudience: expectedAudience,
+		jwksURL:          issuerURI + "/protocol/openid-connect/certs",
+		keys:             make(map[string]*rsa.PublicKey),
 		httpClient: &http.Client{
 			Timeout: 10 * time.Second,
 		},
@@ -114,6 +121,13 @@ func (v *JWTValidator) ValidateToken(ctx context.Context, tokenString string) (*
 	iss, _ := claims["iss"].(string)
 	if iss != v.issuerURI {
 		return nil, ErrInvalidIssuer
+	}
+	if v.expectedAudience != "" {
+		aud := getAudienceClaim(claims)
+		azp := getStringClaim(claims, "azp")
+		if !containsString(aud, v.expectedAudience) && azp != v.expectedAudience {
+			return nil, ErrInvalidAudience
+		}
 	}
 
 	// Extract claims
@@ -299,6 +313,15 @@ func jwkToRSAPublicKey(jwk JWK) (*rsa.PublicKey, error) {
 }
 
 // Helper functions
+
+func containsString(list []string, target string) bool {
+	for _, s := range list {
+		if s == target {
+			return true
+		}
+	}
+	return false
+}
 
 func getStringClaim(claims jwt.MapClaims, key string) string {
 	if val, ok := claims[key].(string); ok {

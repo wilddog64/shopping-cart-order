@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	"github.com/shopspring/decimal"
+	"github.com/wilddog64/shopping-cart-order/internal/httpx"
 	"go.uber.org/zap"
 )
 
@@ -178,14 +179,18 @@ func (h *Handler) GetOrder(c *gin.Context) {
 		handleServiceError(c, err)
 		return
 	}
+	if orderEntity.CustomerID != httpx.GetCustomerID(c) {
+		writeError(c, http.StatusNotFound, "NOT_FOUND", "order not found")
+		return
+	}
 
 	c.JSON(http.StatusOK, toOrderResponse(orderEntity))
 }
 
 func (h *Handler) ListOrdersByCustomer(c *gin.Context) {
-	customerID := strings.TrimSpace(c.Query("customerId"))
+	customerID := strings.TrimSpace(httpx.GetCustomerID(c))
 	if customerID == "" {
-		writeError(c, http.StatusBadRequest, "BAD_REQUEST", "customerId is required")
+		writeError(c, http.StatusUnauthorized, "UNAUTHORIZED", "authenticated customer required")
 		return
 	}
 

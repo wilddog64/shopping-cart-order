@@ -50,7 +50,7 @@ func (bc *BasketClient) GetCart(ctx context.Context, authHeader, customerID stri
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return nil, fmt.Errorf("basket GET /api/v1/cart: unexpected status %d", resp.StatusCode)
 	}
@@ -75,7 +75,7 @@ func (bc *BasketClient) ClearCart(ctx context.Context, authHeader, customerID st
 	if err != nil {
 		return err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
 		return fmt.Errorf("basket DELETE /api/v1/cart: unexpected status %d", resp.StatusCode)
 	}
@@ -128,7 +128,7 @@ func (pc *PaymentClient) ProcessPayment(ctx context.Context, authHeader string, 
 	if err != nil {
 		return PaymentOutcome{}, err
 	}
-	defer resp.Body.Close()
+	defer func() { _ = resp.Body.Close() }()
 	raw, _ := io.ReadAll(resp.Body)
 	var pres paymentResponse
 	_ = json.Unmarshal(raw, &pres)

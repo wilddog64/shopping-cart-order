@@ -17,6 +17,7 @@
 - README: update Issue Logs to 5 most recent entries — Copilot PR #25 findings, Copilot PR #24 findings, RabbitMQ connection refused, Rate limiting distributed state, Multi-arch workflow pin
 
 ### Fixed
+- `go/Dockerfile`: bump builder base image from `golang:1.21-alpine` to `golang:1.25-alpine` to match `go.mod` (`go 1.25.0`) — under `GOTOOLCHAIN=local` the 1.21 toolchain failed `go mod download` with `go.mod requires go >= 1.25.0`, breaking the Go CI Docker-build step on main (and every open Go PR)
 - `src/main/java/.../SecurityConfig.java`: add dedicated `@Order(0)` SecurityFilterChain for `/actuator/**` to prevent Spring Security 6.2.0 ExceptionTranslationFilter NPE on liveness/readiness probes (root cause of CrashLoopBackOff)
 - `pom.xml`: add Lombok annotation processor to `maven-compiler-plugin` annotationProcessorPaths so `@Slf4j` fields compile correctly (was missing in inherited parent POM)
 - `.githooks/pre-push`: add main-guard hook to prevent accidental direct pushes to main (activation: `git config core.hooksPath .githooks`)

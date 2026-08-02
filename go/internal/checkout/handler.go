@@ -101,7 +101,7 @@ func (h *Handler) Checkout(c *gin.Context) {
 		c.JSON(http.StatusPaymentRequired, checkoutResponse{OrderID: entity.ID.String(), Amount: entity.TotalAmount.StringFixed(2), Currency: entity.Currency, PaymentStatus: "FAILED", Retryable: true, FailureReason: reason})
 		return
 	}
-	if _, err := h.orders.UpdateOrderStatus(ctx, entity.ID, order.UpdateOrderStatusRequest{Status: order.OrderStatusPaid, PaymentMethod: h.gateway}, correlationID); err != nil {
+	if _, err := h.orders.UpdateOrderStatus(ctx, entity.ID, order.UpdateOrderStatusRequest{Status: order.OrderStatusPaid, PaymentMethod: h.gateway, PaymentID: outcome.PaymentID}, correlationID); err != nil {
 		h.logger.Error("checkout: paid but failed to mark order PAID", zap.String("orderId", entity.ID.String()), zap.Error(err))
 		writeError(c, http.StatusInternalServerError, "ORDER_UPDATE_FAILED", "payment captured but order update failed; contact support")
 		return

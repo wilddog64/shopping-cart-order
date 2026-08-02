@@ -58,6 +58,9 @@ func (bc *BasketClient) GetCart(ctx context.Context, authHeader, customerID stri
 	if err := json.NewDecoder(resp.Body).Decode(&env); err != nil {
 		return nil, fmt.Errorf("decode cart: %w", err)
 	}
+	if !env.Success {
+		return nil, fmt.Errorf("basket GET /api/v1/cart: success=false")
+	}
 	return &env.Data, nil
 }
 func (bc *BasketClient) ClearCart(ctx context.Context, authHeader, customerID string) error {
@@ -91,6 +94,7 @@ type PaymentRequest struct {
 	PaymentMethodID string          `json:"paymentMethodId"`
 }
 type paymentResponse struct {
+	ID            string  `json:"id"`
 	Status        string  `json:"status"`
 	FailureReason *string `json:"failureReason"`
 }
@@ -98,6 +102,7 @@ type PaymentOutcome struct {
 	Paid          bool
 	Status        string
 	FailureReason string
+	PaymentID     string
 }
 type PaymentClient struct {
 	baseURL string
@@ -132,7 +137,7 @@ func (pc *PaymentClient) ProcessPayment(ctx context.Context, authHeader string, 
 	raw, _ := io.ReadAll(resp.Body)
 	var pres paymentResponse
 	_ = json.Unmarshal(raw, &pres)
-	out := PaymentOutcome{Status: pres.Status}
+	out := PaymentOutcome{Status: pres.Status, PaymentID: pres.ID}
 	if pres.FailureReason != nil {
 		out.FailureReason = *pres.FailureReason
 	}

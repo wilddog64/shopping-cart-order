@@ -1,5 +1,16 @@
 # Active Context: Order Service
 
+## Latest completed task
+
+- **Order access-control hardening COMPLETE** — fix commit `42dec80` on `fix/order-access-control-hardening` scopes order reads to the authenticated customer and adds configurable audience/azp enforcement (`OAUTH2_EXPECTED_AUDIENCE`, default empty). Production and negative access-control tests pass; pushed to origin.
+
+- **Copilot hardening COMPLETE** — auth `3101809` rejects empty JWT subjects; orchestrator `48cf402` threads payment IDs into `order.paid` and rejects basket `success:false`. Both functional commits are pushed to origin; Go gates passed with a writable cache.
+
+- **Checkout identity propagation COMPLETE `eb1826e` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Basket and payment calls now forward `X-User-ID` alongside Authorization for mock-auth parity; all checkout gates passed.
+- **Checkout test hardening COMPLETE `88e5be6` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Tests now assert the server-computed amount, Stripe gateway, and PaymentMethod reach the payment request; all specified gates passed.
+- **Phase C Stripe checkout orchestrator COMPLETE `3710b92` on `origin/feat/stripe-checkout-orchestrator` (2026-08-01).** Added server-side basket/order/payment orchestration with PAID-gated cart clearing and retryable payment failures; Go gates passed.
+- **Phase A Stripe checkout auth COMPLETE `ae09af2` on `origin/feat/stripe-checkout-auth` (2026-08-01).** Added Keycloak JWT validation and mock-auth fallback to `/api/orders`; Go gates passed (`gofmt`, `go vet ./...`, `go build ./...`, `go test ./...`).
+
 ## Current Status (2026-04-11)
 
 **PR #24 MERGED** — `7f0ea87e` 2026-04-11 — bump rabbitmq-client to 1.0.1; delete RabbitHealthConfig workaround; 3 Copilot findings fixed. `enforce_admins` restored.

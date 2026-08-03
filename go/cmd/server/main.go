@@ -11,6 +11,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/wilddog64/shopping-cart-order/internal/auth"
+	"github.com/wilddog64/shopping-cart-order/internal/checkout"
 	"github.com/wilddog64/shopping-cart-order/internal/config"
 	"github.com/wilddog64/shopping-cart-order/internal/events"
 	"github.com/wilddog64/shopping-cart-order/internal/health"
@@ -38,6 +40,7 @@ func main() {
 	publisher := events.NewRabbitPublisher(cfg.RabbitMQURI(), logger)
 	orderService := order.NewService(store, publisher, logger)
 	orderHandler := order.NewHandler(orderService, logger)
+	checkoutHandler := checkout.NewHandler(orderService, checkout.NewBasketClient(cfg.BasketServiceURL), checkout.NewPaymentClient(cfg.PaymentServiceURL), cfg.PaymentGateway, logger)
 	healthHandler := health.NewHandler(store, version)
 	rateLimiter := httpx.NewRateLimiter(cfg.RateLimitPerSecond, cfg.RateLimitBurst)
 
@@ -54,11 +57,20 @@ func main() {
 	router.GET("/actuator/info", healthHandler.Info)
 	router.GET("/actuator/prometheus", gin.WrapH(promhttp.Handler()))
 
-	// PR1 intentionally leaves /api/** open. PR2 will add JWT middleware here.
+	var authMiddleware gin.HandlerFunc
+	if cfg.OAuth2Enabled {
+		validator := auth.NewJWTValidator(cfg.OAuth2IssuerURI, cfg.OAuth2ClientID, cfg.OAuth2ExpectedAudience, logger)
+		authMiddleware = httpx.AuthMiddleware(validator, logger)
+	} else {
+		authMiddleware = httpx.MockAuthMiddleware()
+	}
+
 	api := router.Group("/api/orders")
 	api.Use(rateLimiter.Middleware())
+	api.Use(authMiddleware)
 	{
 		api.POST("", orderHandler.CreateOrder)
+		api.POST("/checkout", checkoutHandler.Checkout)
 		api.GET("", orderHandler.ListOrdersByCustomer)
 		api.GET("/:orderId", orderHandler.GetOrder)
 		api.PATCH("/:orderId/status", orderHandler.UpdateOrderStatus)

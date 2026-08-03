@@ -11,10 +11,21 @@ updates:
         update-types:
           - "minor"
           - "patch"
+    ignore:
+      # All maven major bumps deferred — each needs a dedicated migration
+      # (Spring Boot 4, testcontainers 2, owasp dependency-check 12, etc.).
+      # Minor/patch still flow (grouped in maven-minor-patch above). Majors are
+      # taken deliberately, one migration at a time, by narrowing this rule.
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "docker"
     directory: "/"
     schedule:
       interval: "weekly"
+    ignore:
+      # JRE major deferred — stay on the Temurin 21 LTS line; 25 needs testing.
+      - dependency-name: "eclipse-temurin"
+        update-types: ["version-update:semver-major"]
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:

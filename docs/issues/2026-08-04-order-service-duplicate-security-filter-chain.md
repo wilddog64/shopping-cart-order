@@ -19,5 +19,7 @@ The OAuth2 configuration remains the sole filter chain in production.
 
 ## Verification
 
-Run the Maven test and package gates, then deploy the resulting image and
-confirm the order-service pod reaches Ready without the filter-chain exception.
+Rely on the GitHub Actions Java CI test and package gates, then deploy the
+resulting image and confirm the order-service pod reaches Ready without the
+filter-chain exception. Local Maven execution is intentionally avoided because
+this repository's agent guidance documents a Java-version mismatch.

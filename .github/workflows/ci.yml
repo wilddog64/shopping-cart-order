@@ -63,6 +63,7 @@ jobs:
       image-name: ghcr.io/wilddog64/shopping-cart-order
     permissions:
       contents: write
+      pull-requests: write
       packages: write
     secrets:
       PACKAGES_TOKEN: ${{ secrets.PACKAGES_TOKEN }}

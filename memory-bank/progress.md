@@ -1,5 +1,7 @@
 # Progress: Order Service
 
+- [x] **Spring Boot/Spring Cloud startup compatibility** — `f921953` restores Spring Boot 3.2.0 after live `order-service` failed with `Spring Boot [3.5.16] is not compatible with this Spring Cloud release train`. Java CI `30963083653` passed Checkstyle and Build & Test. PR #60 is open; after merge, confirm the new image is deployed and Ready.
+
 - [x] **Order access-control hardening** — `42dec80` adds customer ownership checks, ignores client-supplied list customer IDs, and conditionally validates JWT audience/azp. `gofmt`, build, vet, and uncached `go test ./...` passed; fix branch pushed.
 
 - [x] **Copilot hardening** — `3101809` (auth empty-subject rejection) and `48cf402` (payment ID threading plus basket envelope validation) pushed to their respective branches; formatting, build, vet, and specified uncached tests passed.

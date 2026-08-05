@@ -2,6 +2,8 @@
 
 ## Latest completed task
 
+- **Spring Boot/Spring Cloud startup compatibility fix VERIFIED** — `f921953` restores the Spring Boot parent from 3.5.16 to the supported 3.2.0 line after the live order-service pod CrashLooped with Spring Cloud's compatibility verifier. Java CI run `30963083653` passed Checkstyle and Build & Test. PR #60 is open; do not merge without the required review.
+
 - **Order access-control hardening COMPLETE** — fix commit `42dec80` on `fix/order-access-control-hardening` scopes order reads to the authenticated customer and adds configurable audience/azp enforcement (`OAUTH2_EXPECTED_AUDIENCE`, default empty). Production and negative access-control tests pass; pushed to origin.
 
 - **Copilot hardening COMPLETE** — auth `3101809` rejects empty JWT subjects; orchestrator `48cf402` threads payment IDs into `order.paid` and rejects basket `success:false`. Both functional commits are pushed to origin; Go gates passed with a writable cache.

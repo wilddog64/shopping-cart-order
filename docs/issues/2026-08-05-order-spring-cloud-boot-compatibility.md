@@ -1,11 +1,15 @@
 # Order service fails to start after Spring Boot 3.5 upgrade
 
-## What was tested
+**Date:** 2026-08-05
+**Repository:** `shopping-cart-order`
+**Status:** Fixed in PR #60; awaiting merge and live verification
+
+## What Was Tested
 
 The live `order-service` pod was checked after the image built from main was
 deployed to the ubuntu-hostinger cluster.
 
-## Actual output
+## Actual Output
 
 ```text
 Spring Boot [3.5.16] is not compatible with this Spring Cloud release train
@@ -21,7 +25,7 @@ ghcr.io/wilddog64/shopping-cart-order:sha-02840413b66773431519cc193d899b18fa9c30
 sha256:f8f8827b52f7ca76f36c4339f18f3fcca8b647be0da88aa0f4525560c6db804f
 ```
 
-## Root cause
+## Root Cause
 
 Dependabot commit `3fb5207` changed the Spring Boot parent from `3.2.0` to
 `3.5.16`, while the Spring Cloud release train brought in by the service only

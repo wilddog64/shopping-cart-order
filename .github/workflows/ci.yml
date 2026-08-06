@@ -61,7 +61,7 @@ jobs:
     with:
       service-name: shopping-cart-order
       image-name: ghcr.io/wilddog64/shopping-cart-order
-      dockerfile: go/Dockerfile
+      dockerfile: Dockerfile
       context: go
     permissions:
       contents: write

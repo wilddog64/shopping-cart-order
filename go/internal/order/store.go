@@ -104,6 +104,7 @@ func (s *PostgresStore) Create(ctx context.Context, order *Order) (err error) {
 			item.ProductName,
 			item.Quantity,
 			item.UnitPrice.StringFixed(2),
+			item.Subtotal.StringFixed(2),
 		); err != nil {
 			return err
 		}
@@ -474,8 +475,8 @@ WHERE id = $19
 
 const insertOrderItemSQL = `
 INSERT INTO order_items (
-    id, order_id, product_id, product_name, quantity, unit_price
+    id, order_id, product_id, product_name, quantity, unit_price, total_price
 ) VALUES (
-    $1, $2, $3, $4, $5, $6
+    $1, $2, $3, $4, $5, $6, $7
 )
 `

@@ -25,4 +25,4 @@ commonLabels:
 images:
   - name: shopping-cart-order
     newName: ghcr.io/wilddog64/shopping-cart-order
-    newTag: sha-914039ad665aded1571d0409b0b6c7bd5acc3ebf
+    newTag: sha-56033880a16e77ad5df0752eac8ad1c00c4a258a

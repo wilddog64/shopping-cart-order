@@ -2,6 +2,12 @@
 
 ## [Unreleased]
 
+### Fixed
+- **Dependabot auto-merges now build an image.** Auto-merge was enabled with `GITHUB_TOKEN`, so the merge
+  was made as `github-actions`, and GitHub starts no workflow for that push: dependency and base-image fixes
+  reached `main` but no image. Auto-merge is now enabled with a GitHub App installation token
+  (`AUTOMERGE_APP_CLIENT_ID` / `AUTOMERGE_APP_PRIVATE_KEY`), whose merge push runs the normal build.
+
 ### Security
 - Scope order reads to the authenticated customer and enforce token audience (Stripe checkout pre-enablement hardening; Copilot findings #2, #4): `GetOrder` now returns `404 NOT_FOUND` when the requested order's `CustomerID` does not match the JWT subject (fixes an IDOR — any authenticated caller could read any order by id), and `ListOrdersByCustomer` derives the customer from the authenticated subject instead of trusting the client-supplied `customerId` query parameter. `JWTValidator` gains configurable audience/authorized-party enforcement via a new `OAUTH2_EXPECTED_AUDIENCE` (default empty = enforcement off with a startup warning, so it lands without breaking the current flow; switched on with a verified value at the enablement flip). Adds two negative access-control tests. Spec: `docs/bugs/2026-08-02-stripe-checkout-order-access-control-hardening.md` (k3d-manager).
 - Bump the order service's indirect Go modules past their HIGH CVEs: `golang.org/x/net` v0.60.0

@@ -13,7 +13,7 @@ COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o order-service ./cmd/server
 
 # Runtime stage
-FROM docker.io/library/alpine:3.19
+FROM docker.io/library/alpine:3.24
 
 WORKDIR /app
 

@@ -4,6 +4,13 @@
 
 ### Security
 - Scope order reads to the authenticated customer and enforce token audience (Stripe checkout pre-enablement hardening; Copilot findings #2, #4): `GetOrder` now returns `404 NOT_FOUND` when the requested order's `CustomerID` does not match the JWT subject (fixes an IDOR — any authenticated caller could read any order by id), and `ListOrdersByCustomer` derives the customer from the authenticated subject instead of trusting the client-supplied `customerId` query parameter. `JWTValidator` gains configurable audience/authorized-party enforcement via a new `OAUTH2_EXPECTED_AUDIENCE` (default empty = enforcement off with a startup warning, so it lands without breaking the current flow; switched on with a verified value at the enablement flip). Adds two negative access-control tests. Spec: `docs/bugs/2026-08-02-stripe-checkout-order-access-control-hardening.md` (k3d-manager).
+- Bump the order service's indirect Go modules past their HIGH CVEs: `golang.org/x/net` v0.60.0
+  (CVE-2026-46600, CVE-2026-78669), which itself requires `golang.org/x/crypto` v0.57.0 (CVE-2026-56854,
+  fixed in v0.55.0) and `golang.org/x/text` v0.42.0 (CVE-2026-56852, fixed in v0.39.0). They are
+  `// indirect`, so Dependabot never proposed them. `x/net` v0.60.0
+  needs Go 1.26, so the builder image moves to `golang:1.27-alpine` in the same change, which also clears
+  three Go `stdlib` CVEs (CVE-2026-78667, -78669, -97031). Spec:
+  `docs/bugs/2026-10-06-shopping-cart-order-go-dependabot-coverage-gap.md` (k3d-manager).
 
 ### Added
 - Keycloak JWT validation and authentication middleware for the order service (Stripe checkout Phase A): validates Bearer tokens against the Keycloak realm and gates the protected order endpoints, laying the auth foundation the checkout orchestrator (Phase C) builds on. Spec: `docs/plans/` Phase A order service Keycloak JWT auth.
